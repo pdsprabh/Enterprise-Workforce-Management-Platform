@@ -12,6 +12,8 @@ const assetRoutes = require('./routes/assetRoutes');
 const helpdeskRoutes = require('./routes/helpdeskRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const designationRoutes = require('./routes/designationRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
+const leaveRoutes = require('./routes/leaveRoutes');
 
 dotenv.config();
 
@@ -35,6 +37,8 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/helpdesk', helpdeskRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/leaves', leaveRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
