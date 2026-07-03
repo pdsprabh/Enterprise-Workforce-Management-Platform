@@ -14,6 +14,7 @@ const documentRoutes = require('./routes/documentRoutes');
 const designationRoutes = require('./routes/designationRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
+const recruitmentRoutes = require('./routes/recruitmentRoutes');
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/helpdesk', helpdeskRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leaves', leaveRoutes);
+app.use('/api/recruitment', recruitmentRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
