@@ -56,7 +56,7 @@ export default function EmployeeListPage() {
   }, [filteredEmployees, currentPage]);
 
   const handleRowClick = (employee) => {
-    navigate(`/employees/${employee.id}`);
+    navigate(`/employees/${employee._id}`);
   };
 
   const getStatusColor = (status) => {

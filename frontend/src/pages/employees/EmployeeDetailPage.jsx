@@ -4,20 +4,39 @@ import Card, { CardHeader, CardBody } from '../../components/ui/Card';
 import Avatar from '../../components/ui/Avatar';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import { mockEmployees } from '../../utils/mockData';
+import { getEmployeeById } from '../../api/employeeApi';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 
 export default function EmployeeDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [employee, setEmployee] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('personal');
 
   useEffect(() => {
-    // Simulate API fetch
-    const emp = mockEmployees.find((e) => e.id === id);
-    if (emp) setEmployee(emp);
+    async function fetchEmployee() {
+      try {
+        const response = await getEmployeeById(id);
+        if (response.success) {
+          setEmployee(response.data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEmployee();
   }, [id]);
+
+  if (loading) {
+    return (
+      <div style={{ padding: '48px', textAlign: 'center' }}>
+        <h2>Loading employee profile...</h2>
+      </div>
+    );
+  }
 
   if (!employee) {
     return (
@@ -58,8 +77,8 @@ export default function EmployeeDetailPage() {
               <h2 style={{ fontSize: '20px', marginBottom: '4px' }}>{employee.name}</h2>
               <p style={{ color: 'var(--color-text-secondary)', marginBottom: '12px' }}>{employee.designation}</p>
               
-              <Badge color={employee.status === 'active' ? 'success' : 'warning'} style={{ marginBottom: '24px' }}>
-                {employee.status.replace('_', ' ')}
+              <Badge color={employee.status === 'Active' ? 'success' : 'warning'} style={{ marginBottom: '24px' }}>
+                {employee.status}
               </Badge>
 
               <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left', borderTop: '1px solid var(--color-border)', paddingTop: '16px' }}>
@@ -69,11 +88,11 @@ export default function EmployeeDetailPage() {
                 </div>
                 <div>
                   <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Phone</label>
-                  <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.phone}</p>
+                  <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.mobile || 'N/A'}</p>
                 </div>
                 <div>
                   <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Department</label>
-                  <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.department}</p>
+                  <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.department?.departmentName || employee.department || 'Not Assigned'}</p>
                 </div>
               </div>
             </CardBody>
@@ -114,11 +133,11 @@ export default function EmployeeDetailPage() {
                   </div>
                   <div>
                     <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Date of Birth</label>
-                    <p style={{ fontSize: '14px', fontWeight: 500 }}>Jan 15, 1990</p>
+                    <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.dob ? formatDate(employee.dob) : 'N/A'}</p>
                   </div>
                   <div style={{ gridColumn: 'span 2' }}>
                     <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Address</label>
-                    <p style={{ fontSize: '14px', fontWeight: 500 }}>123 Business Park, Tech City, 10001</p>
+                    <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.address || 'N/A'}</p>
                   </div>
                 </div>
               )}
@@ -127,19 +146,19 @@ export default function EmployeeDetailPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
                   <div>
                     <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Employee ID</label>
-                    <p style={{ fontSize: '14px', fontWeight: 500 }}>EMP-{employee.id.padStart(4, '0')}</p>
+                    <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.employeeId || 'N/A'}</p>
                   </div>
                   <div>
                     <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Date of Joining</label>
-                    <p style={{ fontSize: '14px', fontWeight: 500 }}>{formatDate(employee.joinDate)}</p>
+                    <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.joiningDate ? formatDate(employee.joiningDate) : 'N/A'}</p>
                   </div>
                   <div>
-                    <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Base Salary</label>
-                    <p style={{ fontSize: '14px', fontWeight: 500 }}>{formatCurrency(employee.salary)} / year</p>
+                    <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Base Salary Grade</label>
+                    <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.salaryGrade || 'N/A'}</p>
                   </div>
                   <div>
                     <label style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Reporting Manager</label>
-                    <p style={{ fontSize: '14px', fontWeight: 500 }}>Sarah Jenkins</p>
+                    <p style={{ fontSize: '14px', fontWeight: 500 }}>{employee.manager?.name || 'Not Assigned'}</p>
                   </div>
                 </div>
               )}
