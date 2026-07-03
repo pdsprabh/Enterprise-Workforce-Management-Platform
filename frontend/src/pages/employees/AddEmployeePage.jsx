@@ -5,6 +5,8 @@ import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
 import { DEPARTMENTS, DESIGNATIONS } from '../../utils/constants';
+import { register } from '../../api/authApi';
+import { createEmployee } from '../../api/employeeApi';
 
 export default function AddEmployeePage() {
   const navigate = useNavigate();
@@ -28,16 +30,42 @@ export default function AddEmployeePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // 1. Create a user account for the employee
+      const userRes = await register({
+        name: formData.name,
+        email: formData.email,
+        password: 'Password@123', // Default temporary password
+        role: 'Employee'
+      });
+      
+      const newUserId = userRes.user.id;
+
+      // 2. Create the employee record linked to the user
+      await createEmployee({
+        user: newUserId,
+        name: formData.name,
+        email: formData.email,
+        mobile: formData.phone,
+        dob: formData.dob || undefined,
+        address: formData.address || undefined,
+        designation: formData.designation,
+        joiningDate: formData.joinDate,
+        salaryGrade: formData.salary,
+      });
+
       addToast({ type: 'success', message: 'Employee added successfully' });
       navigate('/employees');
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+      addToast({ type: 'error', message: err.response?.data?.message || 'Failed to add employee' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

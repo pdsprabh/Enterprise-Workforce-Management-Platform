@@ -7,7 +7,7 @@ router.use(protect);
 
 router.route('/')
     .get(authorize('Super Admin', 'Organization Admin', 'HR Manager', 'Employee'), getEmployees)
-    .post(authorize('Super Admin', 'Organization Admin', 'HR Manager'), createEmployee);
+    .post(authorize('Super Admin', 'Organization Admin', 'HR Manager', 'Employee'), createEmployee);
 
 router.route('/:id')
     .get(getEmployee) // Allow anyone to get, but controller filters sensitive data

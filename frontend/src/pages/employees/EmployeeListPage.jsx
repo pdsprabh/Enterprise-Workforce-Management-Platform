@@ -7,8 +7,8 @@ import Avatar from '../../components/ui/Avatar';
 import SearchBar from '../../components/ui/SearchBar';
 import Pagination from '../../components/ui/Pagination';
 import Button from '../../components/ui/Button';
-import { mockEmployees } from '../../utils/mockData';
 import { formatDate, formatCurrency } from '../../utils/formatters';
+import { getEmployees } from '../../api/employeeApi';
 
 export default function EmployeeListPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,17 +16,38 @@ export default function EmployeeListPage() {
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch employees
+  useMemo(() => {
+    async function loadEmployees() {
+      try {
+        setLoading(true);
+        const res = await getEmployees();
+        if (res && res.data) {
+          setEmployees(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load employees:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadEmployees();
+  }, []);
+
   // Filter and pagination logic
   const filteredEmployees = useMemo(() => {
-    if (!searchQuery) return mockEmployees;
+    if (!searchQuery) return employees;
     const lowerQuery = searchQuery.toLowerCase();
-    return mockEmployees.filter(
+    return employees.filter(
       (emp) =>
-        emp.name.toLowerCase().includes(lowerQuery) ||
-        emp.email.toLowerCase().includes(lowerQuery) ||
-        emp.department.toLowerCase().includes(lowerQuery)
+        emp.name?.toLowerCase().includes(lowerQuery) ||
+        emp.email?.toLowerCase().includes(lowerQuery) ||
+        emp.department?.departmentName?.toLowerCase().includes(lowerQuery)
     );
-  }, [searchQuery]);
+  }, [searchQuery, employees]);
 
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
   const paginatedData = useMemo(() => {
@@ -39,9 +60,11 @@ export default function EmployeeListPage() {
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
+    if (!status) return 'primary';
+    switch (status.toLowerCase()) {
       case 'active': return 'success';
       case 'inactive': return 'secondary';
+      case 'archived': return 'secondary';
       case 'on_leave': return 'warning';
       default: return 'primary';
     }
@@ -66,24 +89,29 @@ export default function EmployeeListPage() {
     {
       header: 'Department',
       accessor: 'department',
+      cell: (row) => row.department?.departmentName || 'N/A'
     },
     {
       header: 'Designation',
       accessor: 'designation',
+      cell: (row) => row.designation || 'N/A'
     },
     {
       header: 'Status',
       accessor: 'status',
-      cell: (row) => (
-        <Badge color={getStatusColor(row.status)}>
-          {row.status.replace('_', ' ')}
-        </Badge>
-      )
+      cell: (row) => {
+        const s = row.status || 'Active';
+        return (
+          <Badge color={getStatusColor(s)}>
+            {s.replace('_', ' ')}
+          </Badge>
+        );
+      }
     },
     {
       header: 'Join Date',
-      accessor: 'joinDate',
-      cell: (row) => formatDate(row.joinDate)
+      accessor: 'joiningDate',
+      cell: (row) => row.joiningDate ? formatDate(row.joiningDate) : 'N/A'
     }
   ];
 
@@ -110,12 +138,16 @@ export default function EmployeeListPage() {
           />
         </CardHeader>
         <CardBody style={{ padding: 0 }}>
-          <DataTable
-            columns={columns}
-            data={paginatedData}
-            onRowClick={handleRowClick}
-            emptyMessage="No employees found matching your search."
-          />
+          {loading ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>Loading employees...</div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={paginatedData}
+              onRowClick={handleRowClick}
+              emptyMessage="No employees found matching your search."
+            />
+          )}
         </CardBody>
         {totalPages > 1 && (
           <div style={{ padding: '0 16px' }}>
