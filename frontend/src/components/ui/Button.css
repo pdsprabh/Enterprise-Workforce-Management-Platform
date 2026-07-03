@@ -1,0 +1,102 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  border-radius: var(--radius-md, 8px);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Sizes ────────────────────────── */
+.btn--sm { padding: 6px 14px; font-size: 13px; }
+.btn--md { padding: 10px 20px; font-size: 14px; }
+.btn--lg { padding: 12px 28px; font-size: 16px; }
+.btn--full { width: 100%; }
+
+/* ── Variants ─────────────────────── */
+.btn--primary {
+  background: var(--color-primary, #4f46e5);
+  color: #fff;
+  border-color: var(--color-primary, #4f46e5);
+}
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-dark, #4338ca);
+  border-color: var(--color-primary-dark, #4338ca);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+}
+
+.btn--secondary {
+  background: var(--color-bg-secondary, #f3f4f6);
+  color: var(--color-text-primary, #111827);
+  border-color: var(--color-border, #e5e7eb);
+}
+.btn--secondary:hover:not(:disabled) {
+  background: var(--color-border, #e5e7eb);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--color-primary, #4f46e5);
+  border-color: var(--color-primary, #4f46e5);
+}
+.btn--outline:hover:not(:disabled) {
+  background: var(--color-primary, #4f46e5);
+  color: #fff;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border-color: transparent;
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--color-bg-secondary, #f3f4f6);
+  color: var(--color-text-primary, #111827);
+}
+
+.btn--danger {
+  background: var(--color-danger, #ef4444);
+  color: #fff;
+  border-color: var(--color-danger, #ef4444);
+}
+.btn--danger:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+/* ── Loading spinner ──────────────── */
+.btn__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.btn--secondary .btn__spinner,
+.btn--ghost .btn__spinner,
+.btn--outline .btn__spinner {
+  border-color: rgba(79, 70, 229, 0.2);
+  border-top-color: var(--color-primary, #4f46e5);
+}
+
+.btn__text--loading {
+  opacity: 0.7;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

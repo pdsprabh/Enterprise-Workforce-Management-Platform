@@ -1,0 +1,27 @@
+.dashboard-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--color-bg-secondary);
+}
+
+.dashboard-layout__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dashboard-layout__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout.sidebar-open .dashboard-layout__main {
+    /* When sidebar is open on mobile, main content is usually pushed or covered.
+       We'll handle this in the Sidebar css via fixed positioning. */
+  }
+}

@@ -1,0 +1,36 @@
+.avatar-img,
+.avatar-initials {
+  border-radius: 50%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--color-primary-light);
+  flex-shrink: 0;
+}
+
+.avatar--sm {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.avatar--md {
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+}
+
+.avatar--lg {
+  width: 56px;
+  height: 56px;
+  font-size: 20px;
+}
+
+.avatar--xl {
+  width: 80px;
+  height: 80px;
+  font-size: 28px;
+}
