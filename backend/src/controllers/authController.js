@@ -58,8 +58,13 @@ exports.login = async (req, res) => {
             success: true,
             token,
             refreshToken,
-            role: user.role,
-            userId: user._id
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                mobile: user.mobile
+            }
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -111,10 +116,22 @@ exports.register = async (req, res) => {
             mobile
         });
 
+        const token = generateToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
         res.status(201).json({
             success: true,
-            userId: user._id,
-            role: user.role
+            token,
+            refreshToken,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                mobile: user.mobile
+            }
         });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -132,6 +149,30 @@ exports.logout = async (req, res) => {
             await user.save({ validateBeforeSave: false });
         }
         res.status(200).json({ success: true, message: 'Logged out successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get current logged in user
+// @route   GET /api/auth/me
+// @access  Private
+exports.getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.status(200).json({
+            success: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                mobile: user.mobile
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
