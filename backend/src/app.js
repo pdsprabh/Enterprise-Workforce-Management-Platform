@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const http = require('http');
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
@@ -15,6 +16,10 @@ const designationRoutes = require('./routes/designationRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
 const recruitmentRoutes = require('./routes/recruitmentRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const aiRoutes = require('./routes/aiRoutes');
+const { initSocket } = require('./socket/socketManager');
 
 dotenv.config();
 
@@ -41,6 +46,9 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
@@ -51,7 +59,9 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 if (require.main === module) {
-    app.listen(PORT, () => {
+    const server = http.createServer(app);
+    initSocket(server);
+    server.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
 }
