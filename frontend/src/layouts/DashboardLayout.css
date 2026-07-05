@@ -1,11 +1,24 @@
+/* ── Page shell ──────────────────────────────────────────────── */
 .dashboard-layout {
   display: flex;
   height: 100vh;
   overflow: hidden;
   background-color: var(--color-bg-secondary);
+  position: relative;
 }
 
+/* ── SideRays WebGL canvas (behind everything) ────────────────── */
+.dashboard-layout__rays {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Main content column ──────────────────────────────────────── */
 .dashboard-layout__main {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -19,9 +32,92 @@
   padding: 24px;
 }
 
+/* ── StaggeredMenu overlay ────────────────────────────────────────
+   Fixed full-viewport container; pointer-events: none so it never
+   blocks clicks on the page. Only the toggle button and open panel
+   re-enable pointer events.
+*/
+.dashboard-staggered-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.dashboard-staggered-menu .sm-toggle,
+.dashboard-staggered-menu .staggered-menu-panel,
+.dashboard-staggered-menu .sm-prelayers {
+  pointer-events: auto;
+}
+
+.dashboard-staggered-menu .staggered-menu-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Toggle button: top-left floating pill ────────────────────── */
+.dashboard-staggered-menu .sm-toggle {
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(30, 32, 48, 0.75);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 99px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #c7d1db;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  z-index: 70;
+}
+
+.dashboard-staggered-menu .sm-toggle:hover {
+  background: rgba(99, 102, 241, 0.28);
+  border-color: rgba(99, 102, 241, 0.65);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.22);
+}
+
+/* ── Panel brand block (inside the slide-in panel) ───────────── */
+.sm-panel-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.sm-panel-brand__icon {
+  width: 34px;
+  height: 34px;
+  background: #6366f1;
+  color: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sm-panel-brand__name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #dee4ea;
+  letter-spacing: -0.01em;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .dashboard-layout.sidebar-open .dashboard-layout__main {
-    /* When sidebar is open on mobile, main content is usually pushed or covered.
-       We'll handle this in the Sidebar css via fixed positioning. */
+  .dashboard-layout__content {
+    padding: 16px;
   }
 }

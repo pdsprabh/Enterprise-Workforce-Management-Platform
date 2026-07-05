@@ -1,0 +1,100 @@
+/* ── Animated Sparkline ───────────────────────────────────────── */
+.sparkline {
+  position: relative;
+  width: 100%;
+}
+
+.sparkline__svg {
+  width: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* The main line draws itself in via stroke-dashoffset animation */
+.sparkline__line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+  animation: sparkline-draw 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes sparkline-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Filled area under the line fades in after the line finishes drawing */
+.sparkline__area {
+  animation: sparkline-fill 0.5s ease 1.2s both;
+}
+
+@keyframes sparkline-fill {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Dot that pulses at the latest data point */
+.sparkline__dot {
+  animation: sparkline-pop 0.4s ease 1.4s both;
+  transform-origin: center;
+}
+
+@keyframes sparkline-pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.sparkline__dot-pulse {
+  animation: sparkline-pulse 2s ease-in-out 1.8s infinite;
+  transform-origin: center;
+}
+
+@keyframes sparkline-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.4; }
+  50%       { transform: scale(2.2); opacity: 0; }
+}
+
+/* X-axis labels */
+.sparkline__labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding: 0 2px;
+}
+
+.sparkline__label {
+  font-size: 0.7rem;
+  color: var(--color-text-muted, #9ca3af);
+  white-space: nowrap;
+}
+
+/* Tooltip */
+.sparkline__tooltip {
+  position: absolute;
+  background: var(--color-bg-primary, #1f2937);
+  border: 1px solid var(--color-border, #374151);
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 0.75rem;
+  color: var(--color-text-primary);
+  pointer-events: none;
+  transform: translate(-50%, -110%);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+
+.sparkline__tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--color-border, #374151);
+}
+
+/* Hover crosshair dot */
+.sparkline__hover-dot {
+  pointer-events: none;
+}

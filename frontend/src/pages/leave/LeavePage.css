@@ -1,0 +1,99 @@
+.leave-page {
+  padding: 24px;
+  max-width: 1100px;
+}
+
+.leave-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.leave-page__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.leave-page__tabs {
+  margin-bottom: 24px;
+}
+
+.leave-page__content {
+  min-height: 200px;
+}
+
+/* Balance grid */
+.leave-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .leave-balance-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Team requests */
+.team-req-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.team-req-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.team-req-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+.team-req-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* My leaves table */
+.my-leaves-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.my-leaves-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.my-leaves-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+.leave-page__card {
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px;
+  overflow-x: auto;
+}

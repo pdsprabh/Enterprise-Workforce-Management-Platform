@@ -1,0 +1,114 @@
+/* ── Salary Breakdown ────────────────────────────────── */
+.salary-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.salary-breakdown__bar {
+  height: 16px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  width: 100%;
+}
+
+.salary-breakdown__segment {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.salary-breakdown__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.salary-breakdown__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.salary-breakdown__row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.salary-breakdown__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.salary-breakdown__comp-name {
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.salary-breakdown__row-right {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.salary-breakdown__pct {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #9ca3af);
+  min-width: 40px;
+  text-align: right;
+}
+
+.salary-breakdown__amount {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  min-width: 90px;
+  text-align: right;
+}
+
+/* ── Payslip Modal ───────────────────────────────────── */
+.payslip-modal__section {
+  margin-bottom: 20px;
+}
+
+.payslip-modal__section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.payslip-modal__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.payslip-modal__row--total {
+  font-weight: 700;
+  font-size: 1rem;
+  border-top: 2px solid var(--color-border, #e5e7eb);
+  margin-top: 8px;
+  padding-top: 10px;
+}
+
+.payslip-modal__net {
+  background: var(--color-primary, #4f46e5);
+  color: #fff;
+  border-radius: var(--radius-md, 8px);
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+}

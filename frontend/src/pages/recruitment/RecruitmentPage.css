@@ -1,0 +1,40 @@
+.recruitment-page {
+  padding: 24px;
+  max-width: 1300px;
+}
+
+.recruitment-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.recruitment-page__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.recruitment-page__tabs {
+  margin-bottom: 24px;
+}
+
+.recruitment-page__content {
+  min-height: 200px;
+}
+
+/* Job postings grid */
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Kanban */
+.recruitment-page__kanban {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
