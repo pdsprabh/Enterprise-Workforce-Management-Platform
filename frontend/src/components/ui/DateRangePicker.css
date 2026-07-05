@@ -1,0 +1,62 @@
+.drp {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drp__fields {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.drp__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.drp__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.drp__input {
+  padding: 8px 12px;
+  border: 1.5px solid var(--color-border, #d1d5db);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-bg-primary, #fff);
+  color: var(--color-text-primary, #111827);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.drp__input:focus {
+  border-color: var(--color-primary, #4f46e5);
+}
+
+.drp__arrow {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary, #6b7280);
+  padding-bottom: 10px;
+}
+
+.drp__summary {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.drp__days {
+  font-weight: 700;
+  color: var(--color-primary, #4f46e5);
+}
+
+.drp__error {
+  font-size: 0.82rem;
+  color: var(--color-danger, #ef4444);
+}

@@ -143,47 +143,14 @@
 .bg-warning { background-color: var(--color-warning); }
 .bg-info { background-color: var(--color-info); }
 
-/* ── QuickActions ────────────────────────── */
-.quick-actions-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.quick-action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px;
-  background-color: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-primary);
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.quick-action-btn:hover {
-  background-color: var(--color-bg-secondary);
-  border-color: var(--color-primary);
-}
-
-.quick-action-btn__icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+/* ── QuickActions (Dock) ─────────────────── */
+.quick-actions-dock-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.quick-action-btn__icon svg {
-  width: 18px;
-  height: 18px;
+  /* vertical room for the dock to expand upward on hover */
+  min-height: 160px;
+  padding-top: 80px;
 }
 
 /* ── ChartCard ───────────────────────────── */
@@ -196,4 +163,53 @@
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
   margin-top: 12px;
+}
+
+.chart-card__section {
+  width: 100%;
+}
+
+.chart-card__legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.chart-card__legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-card__dept-legend {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 16px;
+  margin-top: 14px;
+}
+
+.chart-card__dept-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.chart-card__dept-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chart-card__dept-count {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
 }

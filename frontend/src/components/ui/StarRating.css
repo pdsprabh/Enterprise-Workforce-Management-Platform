@@ -1,0 +1,41 @@
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star {
+  font-style: normal;
+}
+
+/* Sizes */
+.star--sm { font-size: 0.9rem; }
+.star--md { font-size: 1.1rem; }
+.star--lg { font-size: 1.4rem; }
+
+/* Colors */
+.star--full  { color: #f59e0b; }
+.star--empty { color: #d1d5db; }
+.star--half  {
+  position: relative;
+  color: #d1d5db;
+  display: inline-block;
+}
+
+/* Half-star effect using a pseudo-element overlay */
+.star--half::before {
+  content: '★';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  overflow: hidden;
+  color: #f59e0b;
+}
+
+.star-rating__value {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  margin-left: 4px;
+}

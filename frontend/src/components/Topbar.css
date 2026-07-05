@@ -16,6 +16,12 @@
   gap: 16px;
 }
 
+/* Reserves space for the floating StaggeredMenu toggle pill (top-left) */
+.topbar__menu-spacer {
+  width: 120px; /* roughly the pill width so search doesn't overlap it */
+  flex-shrink: 0;
+}
+
 .topbar__icon-btn {
   background: transparent;
   border: none;
