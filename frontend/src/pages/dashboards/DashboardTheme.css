@@ -100,6 +100,27 @@
   box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
 }
 
+.secondary-action {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.secondary-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
