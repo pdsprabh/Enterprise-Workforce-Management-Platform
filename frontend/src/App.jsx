@@ -86,18 +86,22 @@ function App() {
                     {/* Dashboard */}
                     <Route path="/dashboard" element={<DashboardPage />} />
 
-                    {/* Employees */}
-                    <Route path="/employees" element={<EmployeeListPage />} />
-                    <Route path="/employees/add" element={<AddEmployeePage />} />
-                    <Route path="/employees/:id" element={<EmployeeDetailPage />} />
+                    {/* Employees - Restricted */}
+                    <Route element={<RoleRoute allowedRoles={['Super Admin', 'Organization Admin', 'HR Manager', 'IT Administrator']} />}>
+                      <Route path="/employees" element={<EmployeeListPage />} />
+                      <Route path="/employees/add" element={<AddEmployeePage />} />
+                      <Route path="/employees/:id" element={<EmployeeDetailPage />} />
+                    </Route>
 
                     {/* Day 3 */}
                     <Route path="/attendance" element={<AttendancePage />} />
                     <Route path="/leave" element={<LeavePage />} />
 
-                    {/* Day 4 */}
-                    <Route path="/payroll" element={<PayrollPage />} />
-                    <Route path="/performance" element={<PerformancePage />} />
+                    {/* Day 4 - Restricted */}
+                    <Route element={<RoleRoute allowedRoles={['Super Admin', 'Organization Admin', 'HR Manager']} />}>
+                      <Route path="/payroll" element={<PayrollPage />} />
+                      <Route path="/performance" element={<PerformancePage />} />
+                    </Route>
                     
                     {/* Restricted Recruitment Route */}
                     <Route element={<RoleRoute allowedRoles={['Super Admin', 'HR Manager']} />}>
@@ -105,7 +109,9 @@ function App() {
                     </Route>
 
                     {/* Day 5 */}
-                    <Route path="/projects" element={<ProjectsPage />} />
+                    <Route element={<RoleRoute allowedRoles={['Super Admin', 'Organization Admin', 'IT Administrator', 'HR Manager']} />}>
+                      <Route path="/projects" element={<ProjectsPage />} />
+                    </Route>
                     <Route path="/helpdesk" element={<HelpdeskPage />} />
 
                     {/* Day 6 */}

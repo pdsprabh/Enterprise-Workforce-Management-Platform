@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TabNav from '../../components/ui/TabNav';
 import Button from '../../components/ui/Button';
 import TicketCard from '../../components/helpdesk/TicketCard';
 import CreateTicketModal from '../../components/helpdesk/CreateTicketModal';
-import { mockTickets } from '../../utils/mockData';
+import useAuth from '../../hooks/useAuth';
+import { useToast } from '../../components/ui/Toast';
+import api from '../../api/axiosInstance';
 import { TICKET_STATUS, TICKET_STATUS_LABELS } from '../../utils/constants';
 import './HelpdeskPage.css';
 import '../../components/projects/Projects.css'; // reuse filter-chip styles
@@ -21,16 +23,41 @@ const STATUS_FILTERS = [
   { key: TICKET_STATUS.CLOSED,      label: TICKET_STATUS_LABELS[TICKET_STATUS.CLOSED] },
 ];
 
-const MY_RAISER = 'Aarav Sharma'; // Logged-in user (mock)
-
 export default function HelpdeskPage() {
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('my');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [tickets, setTickets] = useState(mockTickets);
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchTickets = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/helpdesk');
+      // Format tickets for TicketCard
+      const formatted = res.data.data.map(t => ({
+        ...t,
+        id: t._id,
+        ticketNo: `TKT-${t._id.substring(t._id.length - 4).toUpperCase()}`,
+        raisedBy: t.raisedBy?.name || 'Unknown',
+        assignedTo: t.assignedToIT?.name || 'Unassigned',
+      }));
+      setTickets(formatted);
+    } catch (err) {
+      showToast('Failed to load tickets', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
 
   const currentTickets = activeTab === 'my'
-    ? tickets.filter((t) => t.raisedBy === MY_RAISER)
+    ? tickets.filter((t) => t.raisedBy === user?.name) // Note: In a real app, backend filters 'my' tickets. Since Employee only gets 'my' tickets anyway, this works, but for admins it shows tickets they raised.
     : tickets;
 
   const filteredTickets = statusFilter === 'all'
@@ -45,17 +72,15 @@ export default function HelpdeskPage() {
     [TICKET_STATUS.CLOSED]:      tickets.filter((t) => t.status === TICKET_STATUS.CLOSED).length,
   };
 
-  function handleNewTicket(ticketData) {
-    const newTicket = {
-      ...ticketData,
-      ticketNo: `TKT-${String(tickets.length + 1).padStart(3, '0')}`,
-      raisedBy: MY_RAISER,
-      assignedTo: 'Unassigned',
-      status: TICKET_STATUS.OPEN,
-      updatedAt: new Date().toISOString(),
-      comments: [],
-    };
-    setTickets((prev) => [newTicket, ...prev]);
+  async function handleNewTicket(ticketData) {
+    try {
+      await api.post('/helpdesk', ticketData);
+      showToast('Ticket created successfully!', 'success');
+      setShowCreateModal(false);
+      fetchTickets(); // Refresh list
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to create ticket', 'error');
+    }
   }
 
   return (
@@ -102,7 +127,9 @@ export default function HelpdeskPage() {
 
       {/* Ticket list */}
       <div className="helpdesk-tickets">
-        {filteredTickets.length === 0 ? (
+        {loading ? (
+          <div className="helpdesk-empty">Loading tickets...</div>
+        ) : filteredTickets.length === 0 ? (
           <div className="helpdesk-empty">No tickets match this filter.</div>
         ) : (
           filteredTickets.map((ticket) => (

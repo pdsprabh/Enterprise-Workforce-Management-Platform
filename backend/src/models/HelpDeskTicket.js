@@ -11,8 +11,13 @@ const HelpDeskTicketSchema = new mongoose.Schema({
     },
     raisedBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Employee',
+        ref: 'User',
         required: true
+    },
+    category: {
+        type: String,
+        enum: ['it', 'hr', 'admin', 'facilities', 'other'],
+        required: [true, 'Ticket category is required']
     },
     assignedToIT: {
         type: mongoose.Schema.Types.ObjectId,
