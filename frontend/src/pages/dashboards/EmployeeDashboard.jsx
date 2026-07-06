@@ -115,11 +115,11 @@ const EmployeeDashboard = () => {
                 onChange={(e) => setTicketDescription(e.target.value)}
               ></textarea>
             </div>
-            <div className="modal-actions">
-              <button className="secondary-action" onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>Cancel</button>
-              <button className="primary-action" onClick={handleTicketSubmit} disabled={isSubmitting}>
+            <div className="modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px' }}>
+              <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>Cancel</Button>
+              <Button variant="primary" onClick={handleTicketSubmit} disabled={isSubmitting}>
                 {isSubmitting ? 'Submitting...' : 'Submit Ticket'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
