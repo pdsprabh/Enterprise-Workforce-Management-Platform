@@ -1,15 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TabNav from '../../components/ui/TabNav';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import LeaveBalanceCard from '../../components/leave/LeaveBalanceCard';
 import ApplyLeaveModal from '../../components/leave/ApplyLeaveModal';
 import { useToast } from '../../components/ui/Toast';
-import {
-  mockLeaveRequests,
-  mockLeaveBalance,
-  mockTeamLeaveRequests,
-} from '../../utils/mockData';
+import api from '../../api/axiosInstance';
 import { LEAVE_TYPE_LABELS } from '../../utils/constants';
 import { formatDate } from '../../utils/formatters';
 import './LeavePage.css';
@@ -34,49 +30,96 @@ export default function LeavePage() {
   const [activeTab, setActiveTab] = useState('my-leaves');
   const [modalOpen, setModalOpen] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [myLeaves, setMyLeaves] = useState(mockLeaveRequests);
-  const [teamLeaves, setTeamLeaves] = useState(mockTeamLeaveRequests);
+  const [myLeaves, setMyLeaves] = useState([]);
+  const [teamLeaves, setTeamLeaves] = useState([]);
+  const [leaveBalance, setLeaveBalance] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { addToast } = useToast();
 
-  function handleApplyLeave(data) {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [leavesRes, balanceRes, teamRes] = await Promise.allSettled([
+        api.get('/leaves/me'),
+        api.get('/leaves/balance'),
+        api.get('/leaves')
+      ]);
+
+      if (leavesRes.status === 'fulfilled' && leavesRes.value.data.data) {
+        setMyLeaves(leavesRes.value.data.data);
+      }
+      if (balanceRes.status === 'fulfilled' && balanceRes.value.data.data) {
+        const balData = balanceRes.value.data.data;
+        setLeaveBalance([
+          { type: 'annual', label: 'Annual Leave', total: balData.totalQuota, used: balData.used, available: balData.remaining },
+          { type: 'sick', label: 'Sick Leave', total: 10, used: 0, available: 10 },
+          { type: 'unpaid', label: 'Unpaid Leave', total: 0, used: 0, available: 0 }
+        ]);
+      }
+      if (teamRes.status === 'fulfilled' && teamRes.value.data.data) {
+        setTeamLeaves(teamRes.value.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching leave data', error);
+      addToast({ type: 'error', message: 'Failed to fetch leave data.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  async function handleApplyLeave(data) {
     setSubmitLoading(true);
-    setTimeout(() => {
-      const newLeave = {
-        id: `lr-${Date.now()}`,
-        type: data.type,
-        from: data.startDate,
-        to: data.endDate,
-        days: data.businessDays,
-        reason: data.reason,
-        status: 'pending',
-        appliedOn: new Date().toISOString().split('T')[0],
-      };
-      setMyLeaves((prev) => [newLeave, ...prev]);
-      setSubmitLoading(false);
-      setModalOpen(false);
+    try {
+      await api.post('/leaves', {
+        leaveType: data.type,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        reason: data.reason
+      });
       addToast({ type: 'success', message: 'Leave request submitted successfully!' });
-    }, 800);
+      setModalOpen(false);
+      fetchData(); // Refresh data
+    } catch (error) {
+      console.error('Error submitting leave', error);
+      addToast({ type: 'error', message: error.response?.data?.message || 'Failed to submit leave request.' });
+    } finally {
+      setSubmitLoading(false);
+    }
   }
 
-  function handleCancelLeave(id) {
-    setMyLeaves((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, status: 'cancelled' } : l))
-    );
-    addToast({ type: 'info', message: 'Leave request cancelled.' });
+  async function handleCancelLeave(id) {
+    // Note: cancellation API might not exist yet, we update status to cancelled via updateLeaveStatus endpoint 
+    try {
+      await api.put(`/leaves/${id}/status`, { status: 'cancelled' });
+      addToast({ type: 'info', message: 'Leave request cancelled.' });
+      fetchData();
+    } catch (error) {
+      addToast({ type: 'error', message: 'Failed to cancel leave request.' });
+    }
   }
 
-  function handleApproveTeam(id) {
-    setTeamLeaves((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, status: 'approved' } : l))
-    );
-    addToast({ type: 'success', message: 'Leave approved.' });
+  async function handleApproveTeam(id) {
+    try {
+      await api.put(`/leaves/${id}/status`, { status: 'approved' });
+      addToast({ type: 'success', message: 'Leave approved.' });
+      // Refresh team leaves if implemented
+    } catch (error) {
+      addToast({ type: 'error', message: 'Failed to approve leave.' });
+    }
   }
 
-  function handleRejectTeam(id) {
-    setTeamLeaves((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, status: 'rejected' } : l))
-    );
-    addToast({ type: 'warning', message: 'Leave rejected.' });
+  async function handleRejectTeam(id) {
+    try {
+      await api.put(`/leaves/${id}/status`, { status: 'rejected' });
+      addToast({ type: 'warning', message: 'Leave rejected.' });
+      // Refresh team leaves if implemented
+    } catch (error) {
+      addToast({ type: 'error', message: 'Failed to reject leave.' });
+    }
   }
 
   return (
@@ -118,23 +161,23 @@ export default function LeavePage() {
                 </thead>
                 <tbody>
                   {myLeaves.map((leave) => (
-                    <tr key={leave.id}>
-                      <td>{LEAVE_TYPE_LABELS[leave.type] || leave.type}</td>
-                      <td>{formatDate(leave.from)}</td>
-                      <td>{formatDate(leave.to)}</td>
-                      <td>{leave.days}</td>
+                    <tr key={leave._id}>
+                      <td>{LEAVE_TYPE_LABELS[leave.leaveType] || leave.leaveType}</td>
+                      <td>{formatDate(leave.startDate)}</td>
+                      <td>{formatDate(leave.endDate)}</td>
+                      <td>{leave.totalDays}</td>
                       <td>
                         <Badge color={leaveBadgeColor(leave.status)}>
                           {leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}
                         </Badge>
                       </td>
-                      <td>{formatDate(leave.appliedOn)}</td>
+                      <td>{formatDate(leave.createdAt)}</td>
                       <td>
                         {leave.status === 'pending' && (
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleCancelLeave(leave.id)}
+                            onClick={() => handleCancelLeave(leave._id)}
                           >
                             Cancel
                           </Button>
@@ -151,7 +194,7 @@ export default function LeavePage() {
         {/* Leave Balance */}
         {activeTab === 'balance' && (
           <div className="leave-balance-grid">
-            {mockLeaveBalance.map((b) => (
+            {leaveBalance.map((b) => (
               <LeaveBalanceCard key={b.type} balance={b} />
             ))}
           </div>
@@ -180,13 +223,15 @@ export default function LeavePage() {
                 </thead>
                 <tbody>
                   {teamLeaves.map((req) => (
-                    <tr key={req.id}>
-                      <td style={{ fontWeight: 500 }}>{req.employeeName}</td>
-                      <td>{req.department}</td>
-                      <td>{LEAVE_TYPE_LABELS[req.type] || req.type}</td>
-                      <td>{formatDate(req.from)}</td>
-                      <td>{formatDate(req.to)}</td>
-                      <td>{req.days}</td>
+                    <tr key={req._id}>
+                      <td style={{ fontWeight: 500 }}>
+                        {req.employee?.user ? `${req.employee.user.firstName} ${req.employee.user.lastName}` : 'Unknown'}
+                      </td>
+                      <td>{req.employee?.department || 'N/A'}</td>
+                      <td>{LEAVE_TYPE_LABELS[req.leaveType] || req.leaveType}</td>
+                      <td>{formatDate(req.startDate)}</td>
+                      <td>{formatDate(req.endDate)}</td>
+                      <td>{req.totalDays}</td>
                       <td>
                         <Badge color={leaveBadgeColor(req.status)}>
                           {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
@@ -195,8 +240,8 @@ export default function LeavePage() {
                       <td>
                         {req.status === 'pending' && (
                           <div className="team-req-actions">
-                            <Button variant="primary" size="sm" onClick={() => handleApproveTeam(req.id)}>Approve</Button>
-                            <Button variant="danger" size="sm" onClick={() => handleRejectTeam(req.id)}>Reject</Button>
+                            <Button variant="primary" size="sm" onClick={() => handleApproveTeam(req._id)}>Approve</Button>
+                            <Button variant="danger" size="sm" onClick={() => handleRejectTeam(req._id)}>Reject</Button>
                           </div>
                         )}
                       </td>

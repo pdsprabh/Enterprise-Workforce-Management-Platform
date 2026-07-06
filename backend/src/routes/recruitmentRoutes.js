@@ -9,8 +9,14 @@ const {
     getCandidates,
     getCandidateById,
     scheduleInterview,
-    updateCandidateStatus
+    updateCandidateStatus,
+    getJobPostings,
+    createJobPosting
 } = require('../controllers/recruitmentController');
+
+router.get('/jobs', protect, getJobPostings);
+router.post('/jobs', protect, authorize('HR Manager', 'Super Admin'), createJobPosting);
+
 
 router.post('/candidates', protect, createCandidate);
 router.post('/candidates/:id/resume', protect, upload.single('resume'), uploadResume);

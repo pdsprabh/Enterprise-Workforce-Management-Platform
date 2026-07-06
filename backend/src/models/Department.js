@@ -18,6 +18,14 @@ const DepartmentSchema = new mongoose.Schema({
         type: String,
         enum: ['Active', 'Archived'],
         default: 'Active'
+    },
+    budget: {
+        type: Number,
+        default: 0
+    },
+    budgetSpent: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true,

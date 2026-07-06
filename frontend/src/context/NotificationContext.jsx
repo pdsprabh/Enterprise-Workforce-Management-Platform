@@ -1,17 +1,46 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-import { mockNotifications } from '../utils/mockData';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import api from '../api/axiosInstance';
 
 const NotificationContext = createContext(null);
 
 export function NotificationProvider({ children }) {
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await api.get('/notifications/me');
+      if (res.data.success) {
+        setNotifications(res.data.data.map(n => ({ ...n, id: n._id })));
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Only fetch if there is a token (authenticated)
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchNotifications();
+    } else {
+      setIsLoading(false);
+    }
+  }, [fetchNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const markAsRead = useCallback((id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
+  const markAsRead = useCallback(async (id) => {
+    try {
+      await api.put(`/notifications/${id}/read`);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
   }, []);
 
   const markAllRead = useCallback(() => {
@@ -31,7 +60,7 @@ export function NotificationProvider({ children }) {
       value={{
         notifications,
         unreadCount,
-        isLoading: false,
+        isLoading,
         markAsRead,
         markAllRead,
         addNotification,

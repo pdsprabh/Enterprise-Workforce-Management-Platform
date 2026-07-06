@@ -300,40 +300,38 @@ export const NAV_SECTIONS = [
   {
     title: 'Main',
     items: [
-      { label: 'Dashboard', path: '/dashboard', icon: 'grid', allowedRoles: ['All'] },
+      { label: 'Dashboard', path: '/dashboard', icon: 'grid', allowedRoles: ['All'], description: 'Overview of your workforce metrics.', imagePath: '/features/dashboard_feature.png' },
     ],
   },
   {
     title: 'People',
     items: [
-      { label: 'Employees', path: '/employees', icon: 'users', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager', 'IT Administrator'] },
-      { label: 'Attendance', path: '/attendance', icon: 'clock', allowedRoles: ['All'] },
-      { label: 'Leave', path: '/leave', icon: 'calendar', allowedRoles: ['All'] },
-      { label: 'Recruitment', path: '/recruitment', icon: 'user-plus', allowedRoles: ['Super Admin', 'HR Manager'] },
+      { label: 'Employees', path: '/employees', icon: 'users', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager', 'IT Administrator'], description: 'Manage your workforce directory and profiles.', imagePath: '/features/directory_feature.png' },
+      { label: 'Attendance', path: '/attendance', icon: 'clock', allowedRoles: ['All'], description: 'Track time and attendance records.', imagePath: '/features/attendance_feature.png' },
+      { label: 'Leave', path: '/leave', icon: 'calendar', allowedRoles: ['All'], description: 'Manage time-off requests and balances.', imagePath: '/features/leave_feature.png' },
+      { label: 'Recruitment', path: '/recruitment', icon: 'user-plus', allowedRoles: ['Super Admin', 'HR Manager'], description: 'Source, track, and hire top talent.', imagePath: '/features/recruitment_feature.png' },
     ],
   },
   {
     title: 'Organization',
     items: [
-      { label: 'Payroll', path: '/payroll', icon: 'dollar-sign', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'] },
-      { label: 'Performance', path: '/performance', icon: 'trending-up', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'] },
-      { label: 'Projects', path: '/projects', icon: 'briefcase', allowedRoles: ['Super Admin', 'Organization Admin', 'IT Administrator', 'HR Manager'] },
+      { label: 'Payroll', path: '/payroll', icon: 'dollar-sign', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'], description: 'Process salaries and view compensation.', imagePath: '/features/payroll_feature.png' },
+      { label: 'Performance', path: '/performance', icon: 'trending-up', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'], description: 'Track goals and employee reviews.', imagePath: '/features/performance_feature.png' },
+      { label: 'Projects', path: '/projects', icon: 'briefcase', allowedRoles: ['Super Admin', 'Organization Admin', 'IT Administrator', 'HR Manager'], description: 'Manage teams, projects, and tasks.', imagePath: '/features/tasks_feature.png' },
     ],
   },
   {
     title: 'Operations',
     items: [
-      { label: 'Assets', path: '/assets', icon: 'monitor', allowedRoles: ['Super Admin', 'IT Administrator'] },
-      { label: 'Helpdesk', path: '/helpdesk', icon: 'headphones', allowedRoles: ['All'] },
-      { label: 'Documents', path: '/documents', icon: 'file-text', allowedRoles: ['All'] },
-      { label: 'Settings', path: '/settings', icon: 'settings', allowedRoles: ['All'] },
+      { label: 'Assets', path: '/assets', icon: 'monitor', allowedRoles: ['Super Admin', 'IT Administrator'], description: 'Track hardware and software inventory.', imagePath: '/features/assets_feature.png' },
+      { label: 'Helpdesk', path: '/helpdesk', icon: 'headphones', allowedRoles: ['All'], description: 'IT support and ticket management.', imagePath: '/features/helpdesk_feature.png' },
+      { label: 'Documents', path: '/documents', icon: 'file-text', allowedRoles: ['All'], description: 'Secure file and policy repository.', imagePath: '/features/documents_feature.png' },
     ],
   },
   {
     title: 'Insights',
     items: [
-      { label: 'Analytics', path: '/analytics', icon: 'bar-chart-2', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'] },
-      { label: 'AI Assistant', path: '/ai-assistant', icon: 'cpu', allowedRoles: ['All'] },
+      { label: 'Analytics', path: '/analytics', icon: 'bar-chart-2', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'], description: 'Actionable workforce insights and reports.', imagePath: '/features/analytics_feature.png' },
     ],
   },
 ];

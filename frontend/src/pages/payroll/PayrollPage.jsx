@@ -1,18 +1,60 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SalaryBreakdown from '../../components/payroll/SalaryBreakdown';
 import PayslipModal from '../../components/payroll/PayslipModal';
 import Button from '../../components/ui/Button';
-import { mockPayrollSummary, mockPayslipHistory } from '../../utils/mockData';
 import { formatCurrency } from '../../utils/formatters';
+import { useToast } from '../../components/ui/Toast';
+import api from '../../api/axiosInstance';
 import './PayrollPage.css';
 
 export default function PayrollPage() {
-  const [month, setMonth] = useState(mockPayrollSummary.month);
-  const [year, setYear] = useState(mockPayrollSummary.year);
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
   const [selectedPayslip, setSelectedPayslip] = useState(null);
+  
+  const [payslips, setPayslips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
 
-  // For demo purposes, always show the same summary regardless of month navigation
-  const summary = mockPayrollSummary;
+  useEffect(() => {
+    async function fetchPayslips() {
+      try {
+        const res = await api.get('/payroll/me');
+        const data = res.data.data || [];
+        setPayslips(data);
+        if (data.length > 0) {
+          setMonth(data[0].month);
+          setYear(data[0].year);
+        } else {
+          const d = new Date();
+          setMonth(d.toLocaleString('en-US', { month: 'long' }));
+          setYear(d.getFullYear());
+        }
+      } catch (err) {
+        console.error(err);
+        addToast({ type: 'error', message: 'Failed to fetch payroll data' });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPayslips();
+  }, []);
+
+  // For demo purposes, build a summary based on the current selected month/year payslip
+  const currentPayslip = payslips.find(p => p.month === month && p.year === year);
+  const summary = currentPayslip ? {
+    grossSalary: currentPayslip.grossSalary,
+    deductions: currentPayslip.deductions,
+    netSalary: currentPayslip.netSalary,
+    taxYTD: currentPayslip.taxYTD || 0,
+    breakdown: currentPayslip.breakdown || []
+  } : {
+    grossSalary: 0,
+    deductions: 0,
+    netSalary: 0,
+    taxYTD: 0,
+    breakdown: []
+  };
 
   const monthLabel = `${month} ${year}`;
 
@@ -33,11 +75,12 @@ export default function PayrollPage() {
   // Build payslip detail object for the modal
   function buildPayslipDetail(ps) {
     return {
-      ...summary,
       month: ps.month,
-      gross: ps.gross,
+      year: ps.year,
+      gross: ps.grossSalary,
       deductions: ps.deductions,
-      net: ps.net,
+      net: ps.netSalary,
+      breakdown: ps.breakdown || []
     };
   }
 
@@ -94,12 +137,12 @@ export default function PayrollPage() {
               </tr>
             </thead>
             <tbody>
-              {mockPayslipHistory.map((ps) => (
-                <tr key={ps.id}>
-                  <td style={{ fontWeight: 500 }}>{ps.month}</td>
-                  <td>{formatCurrency(ps.gross)}</td>
+              {payslips.map((ps) => (
+                <tr key={ps._id}>
+                  <td style={{ fontWeight: 500 }}>{ps.month} {ps.year}</td>
+                  <td>{formatCurrency(ps.grossSalary)}</td>
                   <td style={{ color: 'var(--color-danger)' }}>− {formatCurrency(ps.deductions)}</td>
-                  <td style={{ color: 'var(--color-success)', fontWeight: 600 }}>{formatCurrency(ps.net)}</td>
+                  <td style={{ color: 'var(--color-success)', fontWeight: 600 }}>{formatCurrency(ps.netSalary)}</td>
                   <td>
                     <Button variant="outline" size="sm" onClick={() => setSelectedPayslip(buildPayslipDetail(ps))}>
                       View

@@ -5,10 +5,12 @@ const {
     applyLeave,
     getMyLeaves,
     updateLeaveStatus,
-    getLeaveBalance
+    getLeaveBalance,
+    getAllLeaves
 } = require('../controllers/leaveController');
 
 router.post('/', protect, applyLeave);
+router.get('/', protect, authorize('HR Manager', 'Super Admin', 'Organization Admin'), getAllLeaves);
 router.get('/me', protect, getMyLeaves);
 router.get('/balance', protect, getLeaveBalance);
 router.put('/:id/status', protect, authorize('HR Manager', 'Super Admin', 'Organization Admin'), updateLeaveStatus);

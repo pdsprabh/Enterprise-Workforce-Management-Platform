@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import TabNav from '../../components/ui/TabNav';
 import Button from '../../components/ui/Button';
 import SearchBar from '../../components/ui/SearchBar';
 import DocumentRow from '../../components/documents/DocumentRow';
-import { mockDocuments } from '../../utils/mockData';
 import { DOCUMENT_TYPES } from '../../utils/constants';
 import { useToast } from '../../components/ui/Toast';
+import api from '../../api/axiosInstance';
 import './DocumentsPage.css';
 
 const FILTER_TABS = [
@@ -20,10 +20,34 @@ const FILTER_TABS = [
 
 export default function DocumentsPage() {
   const { showToast } = useToast();
-  const [documents, setDocuments] = useState(mockDocuments);
+  const [documents, setDocuments] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
-  // SearchBar manages its own debounce internally; we just receive the final value
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDocuments() {
+      try {
+        const res = await api.get('/documents/me');
+        const data = res.data.data || [];
+        const mappedDocs = data.map(d => ({
+          ...d,
+          id: d._id,
+          name: d.title, // Mapping title to name for component
+          size: '1 MB', // Dummy size until backend handles it
+          uploadDate: d.createdAt,
+          type: d.type || DOCUMENT_TYPES.OTHER
+        }));
+        setDocuments(mappedDocs);
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to load documents.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDocuments();
+  }, [showToast]);
 
   const filtered = useMemo(() => {
     return documents

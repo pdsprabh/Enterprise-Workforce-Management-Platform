@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TabNav from '../../components/ui/TabNav';
 import KanbanBoard from '../../components/ui/KanbanBoard';
 import JobCard from '../../components/recruitment/JobCard';
 import CandidateCard from '../../components/recruitment/CandidateCard';
 import Button from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
-import { mockJobPostings, mockCandidates } from '../../utils/mockData';
 import { CANDIDATE_STAGES, CANDIDATE_STAGE_LABELS } from '../../utils/constants';
+import api from '../../api/axiosInstance';
 import './RecruitmentPage.css';
 
 const TABS = [
@@ -25,21 +25,66 @@ const KANBAN_COLUMNS = [
 
 export default function RecruitmentPage() {
   const [activeTab, setActiveTab] = useState('positions');
-  const [candidates, setCandidates] = useState(mockCandidates);
+  const [candidates, setCandidates] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
 
-  function handleAdvance(candidateId, newStage) {
-    setCandidates((prev) =>
-      prev.map((c) => (c.id === candidateId ? { ...c, stage: newStage } : c))
-    );
-    addToast({ type: 'success', message: `Candidate advanced to ${CANDIDATE_STAGE_LABELS[newStage]}.` });
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [jobsRes, candidatesRes] = await Promise.all([
+          api.get('/recruitment/jobs'),
+          api.get('/recruitment/candidates')
+        ]);
+        setJobs(jobsRes.data.data || []);
+        // Map backend `status` to frontend `stage` if needed.
+        // Frontend uses CANDIDATE_STAGES which are keys like 'APPLIED'
+        const mappedCandidates = (candidatesRes.data.data || []).map(c => ({
+          ...c,
+          id: c._id, // Ensure id is mapped
+          stage: c.status?.toUpperCase()?.replace('-', '_') || 'APPLIED' // Map 'interview-scheduled' to 'INTERVIEW_SCHEDULED' etc.
+        }));
+        setCandidates(mappedCandidates);
+      } catch (err) {
+        console.error('Failed to fetch recruitment data', err);
+        addToast({ type: 'error', message: 'Failed to fetch recruitment data' });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  async function handleAdvance(candidateId, newStage) {
+    try {
+      // Convert front-end stage to backend status
+      // e.g., 'INTERVIEW' -> 'interview-scheduled'
+      let status = newStage.toLowerCase().replace('_', '-');
+      if (status === 'interview') status = 'interview-scheduled';
+
+      await api.put(`/recruitment/candidates/${candidateId}/status`, { status });
+      
+      setCandidates((prev) =>
+        prev.map((c) => (c.id === candidateId ? { ...c, stage: newStage } : c))
+      );
+      addToast({ type: 'success', message: `Candidate advanced to ${CANDIDATE_STAGE_LABELS[newStage]}.` });
+    } catch (err) {
+      addToast({ type: 'error', message: 'Failed to update candidate status' });
+    }
   }
 
-  function handleReject(candidateId) {
-    setCandidates((prev) =>
-      prev.map((c) => (c.id === candidateId ? { ...c, stage: CANDIDATE_STAGES.REJECTED } : c))
-    );
-    addToast({ type: 'warning', message: 'Candidate marked as rejected.' });
+  async function handleReject(candidateId) {
+    try {
+      await api.put(`/recruitment/candidates/${candidateId}/status`, { status: 'rejected' });
+      
+      setCandidates((prev) =>
+        prev.map((c) => (c.id === candidateId ? { ...c, stage: CANDIDATE_STAGES.REJECTED } : c))
+      );
+      addToast({ type: 'warning', message: 'Candidate marked as rejected.' });
+    } catch (err) {
+      addToast({ type: 'error', message: 'Failed to reject candidate' });
+    }
   }
 
   // Build kanban columns with current candidates
@@ -48,7 +93,7 @@ export default function RecruitmentPage() {
     items: candidates.filter((c) => c.stage === col.key),
   }));
 
-  const activeJobs = mockJobPostings.filter((j) => j.status === 'active');
+  const activeJobs = jobs.filter((j) => j.status === 'active');
 
   return (
     <div className="recruitment-page">

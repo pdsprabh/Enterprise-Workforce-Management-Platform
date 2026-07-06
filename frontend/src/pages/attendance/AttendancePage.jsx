@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ClockCard from '../../components/attendance/ClockCard';
 import AttendanceCalendar from '../../components/attendance/AttendanceCalendar';
 import Badge from '../../components/ui/Badge';
-import { mockAttendanceLog } from '../../utils/mockData';
 import { formatDate, formatTime, formatDuration } from '../../utils/formatters';
 import { ATTENDANCE_STATUS_LABELS } from '../../utils/constants';
+import { useToast } from '../../components/ui/Toast';
+import api from '../../api/axiosInstance';
 import './AttendancePage.css';
 
 function statusBadgeColor(status) {
@@ -23,41 +24,85 @@ export default function AttendancePage() {
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
 
-  // Mock clock-in state
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Clock-in state
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState(null);
   const [clockLoading, setClockLoading] = useState(false);
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    fetchAttendance();
+  }, []);
+
+  async function fetchAttendance() {
+    try {
+      const res = await api.get('/attendance/me');
+      const data = res.data.data || [];
+      setRecords(data);
+
+      // Check if there's a record for today with a clockIn but no clockOut
+      const t = new Date();
+      t.setHours(0, 0, 0, 0);
+      const todayRecord = data.find(r => new Date(r.date).getTime() === t.getTime());
+      
+      if (todayRecord && todayRecord.clockIn && !todayRecord.clockOut) {
+        setIsClockedIn(true);
+        setClockInTime(new Date(todayRecord.clockIn));
+      } else {
+        setIsClockedIn(false);
+        setClockInTime(null);
+      }
+    } catch (err) {
+      console.error(err);
+      addToast({ type: 'error', message: 'Failed to fetch attendance records' });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function handleMonthChange(m, y) {
     setMonth(m);
     setYear(y);
   }
 
-  function handleClockIn(_notes) {
+  async function handleClockIn(_notes) {
     setClockLoading(true);
-    setTimeout(() => {
-      setIsClockedIn(true);
-      setClockInTime(new Date());
+    try {
+      await api.post('/attendance/clock-in');
+      await fetchAttendance();
+      addToast({ type: 'success', message: 'Clocked in successfully!' });
+    } catch (err) {
+      console.error(err);
+      addToast({ type: 'error', message: err.response?.data?.message || 'Failed to clock in' });
+    } finally {
       setClockLoading(false);
-    }, 600);
+    }
   }
 
-  function handleClockOut(_notes) {
+  async function handleClockOut(_notes) {
     setClockLoading(true);
-    setTimeout(() => {
-      setIsClockedIn(false);
-      setClockInTime(null);
+    try {
+      await api.post('/attendance/clock-out');
+      await fetchAttendance();
+      addToast({ type: 'success', message: 'Clocked out successfully!' });
+    } catch (err) {
+      console.error(err);
+      addToast({ type: 'error', message: err.response?.data?.message || 'Failed to clock out' });
+    } finally {
       setClockLoading(false);
-    }, 600);
+    }
   }
 
   // Filter records to the selected month/year
   const monthRecords = useMemo(() =>
-    mockAttendanceLog.filter((r) => {
+    records.filter((r) => {
       const d = new Date(r.date);
       return d.getMonth() + 1 === month && d.getFullYear() === year;
     }),
-  [month, year]);
+  [month, year, records]);
 
   // Summary counts
   const summary = useMemo(() => {
@@ -73,9 +118,9 @@ export default function AttendancePage() {
   // Log table columns
   const logColumns = [
     { key: 'date', label: 'Date', render: (r) => formatDate(r.date) },
-    { key: 'clockIn', label: 'Clock In', render: (r) => formatTime(r.clockIn) },
-    { key: 'clockOut', label: 'Clock Out', render: (r) => formatTime(r.clockOut) },
-    { key: 'totalMinutes', label: 'Hours', render: (r) => formatDuration(r.totalMinutes) },
+    { key: 'clockIn', label: 'Clock In', render: (r) => r.clockIn ? formatTime(r.clockIn) : '—' },
+    { key: 'clockOut', label: 'Clock Out', render: (r) => r.clockOut ? formatTime(r.clockOut) : '—' },
+    { key: 'workHours', label: 'Hours', render: (r) => r.workHours ? formatDuration(r.workHours * 60) : '—' },
     {
       key: 'status',
       label: 'Status',

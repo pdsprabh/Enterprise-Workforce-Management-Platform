@@ -16,17 +16,32 @@ exports.getPayslips = async (req, res) => {
     try {
         let query = {};
         // If employee, only get their own payslips
+        // If employee, find their employee ID automatically
         if (req.user.role === 'Employee') {
-            // Find employee id for this user. This would normally require linking User to Employee properly.
-            // For now, assuming client passes employee id in query or we fetch it. 
-            // Better yet, just enforce that if role=Employee, they must provide their own employee document ID in req.query.employee
-            if (!req.query.employee) {
-                return res.status(400).json({ success: false, message: 'Employee reference required for Employees' });
+            const Employee = require('../models/Employee');
+            const employee = await Employee.findOne({ user: req.user._id });
+            if (!employee) {
+                return res.status(404).json({ success: false, message: 'Employee profile not found' });
             }
-            query.employee = req.query.employee;
+            query.employee = employee._id;
         }
 
         const payslips = await Payroll.find(query).populate('employee', 'name employeeId department');
+        res.status(200).json({ success: true, count: payslips.length, data: payslips });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.getMyPayslips = async (req, res) => {
+    try {
+        const Employee = require('../models/Employee');
+        const employee = await Employee.findOne({ user: req.user._id });
+        if (!employee) {
+            return res.status(404).json({ success: false, message: 'Employee profile not found' });
+        }
+        
+        const payslips = await Payroll.find({ employee: employee._id }).sort({ year: -1, month: -1 });
         res.status(200).json({ success: true, count: payslips.length, data: payslips });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

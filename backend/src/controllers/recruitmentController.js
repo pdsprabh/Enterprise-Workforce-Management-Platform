@@ -1,4 +1,5 @@
 const Candidate = require('../models/Candidate');
+const JobPosting = require('../models/JobPosting');
 const cloudinary = require('../config/cloudinary');
 const aiAssistant = require('../ai/aiAssistant');
 
@@ -138,6 +139,28 @@ exports.updateCandidateStatus = async (req, res) => {
         }
 
         res.status(200).json({ success: true, data: candidate });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Get all job postings
+// @route   GET /api/recruitment/jobs
+exports.getJobPostings = async (req, res) => {
+    try {
+        const jobs = await JobPosting.find().sort({ createdAt: -1 });
+        res.status(200).json({ success: true, count: jobs.length, data: jobs });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Create a job posting
+// @route   POST /api/recruitment/jobs
+exports.createJobPosting = async (req, res) => {
+    try {
+        const job = await JobPosting.create(req.body);
+        res.status(201).json({ success: true, data: job });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

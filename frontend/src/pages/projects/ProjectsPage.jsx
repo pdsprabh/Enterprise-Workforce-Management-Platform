@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TabNav from '../../components/ui/TabNav';
 import Button from '../../components/ui/Button';
 import ProjectCard from '../../components/projects/ProjectCard';
 import TaskItem from '../../components/projects/TaskItem';
-import { mockProjects, mockTasks } from '../../utils/mockData';
 import { TASK_STATUS, TASK_STATUS_LABELS, PROJECT_STATUS, PROJECT_STATUS_LABELS } from '../../utils/constants';
+import api from '../../api/axiosInstance';
 import { useToast } from '../../components/ui/Toast';
 import './ProjectsPage.css';
 
@@ -33,12 +33,45 @@ export default function ProjectsPage() {
   const [activeTab, setActiveTab] = useState('projects');
   const [projectFilter, setProjectFilter] = useState('all');
   const [taskFilter, setTaskFilter] = useState('all');
-  const [tasks, setTasks] = useState(mockTasks);
+  
+  const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [projectsRes, tasksRes] = await Promise.all([
+          api.get('/projects'),
+          api.get('/projects/tasks/me')
+        ]);
+        setProjects(projectsRes.data.data || []);
+        
+        // Map backend task data to frontend format
+        const mappedTasks = (tasksRes.data.data || []).map(t => ({
+          ...t,
+          id: t._id,
+          title: t.title,
+          project: t.project?.name || 'Unknown Project',
+          priority: t.priority,
+          status: t.status,
+          dueDate: t.dueDate
+        }));
+        setTasks(mappedTasks);
+      } catch (err) {
+        console.error('Failed to fetch projects data', err);
+        showToast('Failed to load projects data.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [showToast]);
 
   // Filter projects
   const filteredProjects = projectFilter === 'all'
-    ? mockProjects
-    : mockProjects.filter((p) => p.status === projectFilter);
+    ? projects
+    : projects.filter((p) => p.status === projectFilter);
 
   // Filter & sort tasks — overdue first, then by due date
   const filteredTasks = tasks
@@ -51,14 +84,21 @@ export default function ProjectsPage() {
       return new Date(a.dueDate) - new Date(b.dueDate);
     });
 
-  function handleToggleTask(taskId, currentStatus) {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== taskId) return t;
-        const newStatus = currentStatus === TASK_STATUS.DONE ? TASK_STATUS.TODO : TASK_STATUS.DONE;
-        return { ...t, status: newStatus };
-      })
-    );
+  async function handleToggleTask(taskId, currentStatus) {
+    try {
+      const newStatus = currentStatus === TASK_STATUS.DONE ? TASK_STATUS.TODO : TASK_STATUS.DONE;
+      await api.put(`/projects/tasks/${taskId}/status`, { status: newStatus });
+      
+      setTasks((prev) =>
+        prev.map((t) => {
+          if (t.id !== taskId) return t;
+          return { ...t, status: newStatus };
+        })
+      );
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update task status.', 'error');
+    }
   }
 
   function handleNewProject() {

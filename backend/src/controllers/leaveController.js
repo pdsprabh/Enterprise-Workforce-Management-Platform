@@ -2,7 +2,22 @@ const Leave = require('../models/Leave');
 const Employee = require('../models/Employee');
 
 const getEmployeeFromUser = async (userId) => {
-    return await Employee.findOne({ user: userId });
+    let employee = await Employee.findOne({ user: userId });
+    if (!employee) {
+        const User = require('../models/User');
+        const user = await User.findById(userId);
+        if (user) {
+            employee = await Employee.create({
+                user: user._id,
+                name: user.name,
+                email: user.email,
+                mobile: user.mobile,
+                joiningDate: new Date(),
+                status: 'Active'
+            });
+        }
+    }
+    return employee;
 };
 
 exports.applyLeave = async (req, res) => {
@@ -94,6 +109,18 @@ exports.getLeaveBalance = async (req, res) => {
                 remaining: ANNUAL_LEAVE_QUOTA - usedDays
             }
         });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.getAllLeaves = async (req, res) => {
+    try {
+        const leaves = await Leave.find().populate({
+            path: 'employee',
+            populate: { path: 'user', select: 'firstName lastName' }
+        }).sort({ createdAt: -1 });
+        res.status(200).json({ success: true, count: leaves.length, data: leaves });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

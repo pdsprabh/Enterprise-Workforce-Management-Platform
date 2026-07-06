@@ -19,6 +19,7 @@ const recruitmentRoutes = require('./routes/recruitmentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const performanceRoutes = require('./routes/performanceRoutes');
 const { initSocket } = require('./socket/socketManager');
 
 dotenv.config();
@@ -34,8 +35,12 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
+const organizationRoutes = require('./routes/organizationRoutes');
+const systemRoutes = require('./routes/systemRoutes');
+
 // Mount routers
 app.use('/api/auth', authRoutes);
+app.use('/api/organizations', organizationRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/designations', designationRoutes);
 app.use('/api/employees', employeeRoutes);
@@ -49,6 +54,8 @@ app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/system', systemRoutes);
+app.use('/api/performance', performanceRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

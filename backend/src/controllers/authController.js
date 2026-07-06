@@ -116,6 +116,17 @@ exports.register = async (req, res) => {
             mobile
         });
 
+        // Automatically create an Employee profile for the newly registered user
+        const Employee = require('../models/Employee');
+        await Employee.create({
+            user: user._id,
+            name: user.name,
+            email: user.email,
+            mobile: user.mobile,
+            joiningDate: new Date(),
+            status: 'Active'
+        });
+
         const token = generateToken(user._id);
         const refreshToken = generateRefreshToken(user._id);
         user.refreshToken = refreshToken;

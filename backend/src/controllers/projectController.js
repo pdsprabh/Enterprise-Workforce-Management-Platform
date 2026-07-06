@@ -65,6 +65,20 @@ exports.getTasksByProject = async (req, res) => {
     }
 };
 
+exports.getMyTasks = async (req, res) => {
+    try {
+        const Employee = require('../models/Employee');
+        const employee = await Employee.findOne({ user: req.user._id });
+        if (!employee) {
+            return res.status(404).json({ success: false, message: 'Employee not found' });
+        }
+        const tasks = await Task.find({ assignedTo: employee._id }).populate('project', 'name');
+        res.status(200).json({ success: true, count: tasks.length, data: tasks });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 exports.updateTaskStatus = async (req, res) => {
     try {
         const { status } = req.body;

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TabNav from '../../components/ui/TabNav';
 import GoalCard from '../../components/performance/GoalCard';
 import ReviewCard from '../../components/performance/ReviewCard';
-import { mockGoals, mockReviews, mockFeedback } from '../../utils/mockData';
 import { formatDate } from '../../utils/formatters';
+import { useToast } from '../../components/ui/Toast';
+import api from '../../api/axiosInstance';
 import './PerformancePage.css';
 
 const TABS = [
@@ -13,7 +14,44 @@ const TABS = [
 ];
 
 export default function PerformancePage() {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('goals');
+  const [goals, setGoals] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [feedback, setFeedback] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPerformance() {
+      try {
+        const res = await api.get('/performance/me');
+        const data = res.data.data;
+        if (data) {
+          // Map _id to id for components
+          setGoals((data.goals || []).map(g => ({ ...g, id: g._id })));
+          setReviews((data.reviews || []).map(r => ({ ...r, id: r._id })));
+          setFeedback((data.feedback || []).map(f => ({ ...f, id: f._id })));
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to load performance data.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPerformance();
+  }, [showToast]);
+
+  const handleUpdateGoal = async (goalId, newProgress, newStatus) => {
+    try {
+      await api.put(`/performance/goals/${goalId}`, { progress: newProgress, status: newStatus });
+      setGoals(prev => prev.map(g => g.id === goalId ? { ...g, progress: newProgress, status: newStatus } : g));
+      showToast('Goal updated successfully', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update goal', 'error');
+    }
+  };
 
   return (
     <div className="performance-page">
@@ -29,12 +67,12 @@ export default function PerformancePage() {
         {/* Goals */}
         {activeTab === 'goals' && (
           <div className="goals-grid">
-            {mockGoals.length === 0 ? (
+            {goals.length === 0 ? (
               <p style={{ color: 'var(--color-text-secondary)', textAlign: 'center', padding: '24px' }}>
                 No goals assigned yet.
               </p>
             ) : (
-              mockGoals.map((goal) => <GoalCard key={goal.id} goal={goal} />)
+              goals.map((goal) => <GoalCard key={goal.id} goal={goal} onUpdate={handleUpdateGoal} />)
             )}
           </div>
         )}
@@ -42,12 +80,12 @@ export default function PerformancePage() {
         {/* Reviews */}
         {activeTab === 'reviews' && (
           <div className="reviews-grid">
-            {mockReviews.length === 0 ? (
+            {reviews.length === 0 ? (
               <p style={{ color: 'var(--color-text-secondary)', textAlign: 'center', padding: '24px' }}>
                 No reviews yet.
               </p>
             ) : (
-              mockReviews.map((review) => <ReviewCard key={review.id} review={review} />)
+              reviews.map((review) => <ReviewCard key={review.id} review={review} />)
             )}
           </div>
         )}
@@ -55,12 +93,12 @@ export default function PerformancePage() {
         {/* Feedback */}
         {activeTab === 'feedback' && (
           <div className="feedback-grid">
-            {mockFeedback.length === 0 ? (
+            {feedback.length === 0 ? (
               <p style={{ color: 'var(--color-text-secondary)', textAlign: 'center', padding: '24px' }}>
                 No feedback received yet.
               </p>
             ) : (
-              mockFeedback.map((fb) => (
+              feedback.map((fb) => (
                 <div key={fb.id} className="feedback-card">
                   <div>
                     <span className="feedback-card__from">{fb.from}</span>
