@@ -306,7 +306,7 @@ export const NAV_SECTIONS = [
   {
     title: 'People',
     items: [
-      { label: 'Employees', path: '/employees', icon: 'users', allowedRoles: ['All'] },
+      { label: 'Employees', path: '/employees', icon: 'users', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager', 'IT Administrator'] },
       { label: 'Attendance', path: '/attendance', icon: 'clock', allowedRoles: ['All'] },
       { label: 'Leave', path: '/leave', icon: 'calendar', allowedRoles: ['All'] },
       { label: 'Recruitment', path: '/recruitment', icon: 'user-plus', allowedRoles: ['Super Admin', 'HR Manager'] },
