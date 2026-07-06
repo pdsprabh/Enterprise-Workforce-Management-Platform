@@ -7,15 +7,6 @@ const OrgAdminDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-sidebar">
-        <h2 className="sidebar-title">Org Admin</h2>
-        <nav className="sidebar-nav">
-          <a href="#" className="nav-item active"><Globe size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Enterprise View</a>
-          <a href="#" className="nav-item"><Building size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Departments</a>
-          <a href="#" className="nav-item"><Briefcase size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Projects</a>
-          <a href="#" className="nav-item"><Bell size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Announcements</a>
-        </nav>
-      </div>
       <div className="dashboard-main">
         <header className="dashboard-header">
           <h1>Organization Overview</h1>

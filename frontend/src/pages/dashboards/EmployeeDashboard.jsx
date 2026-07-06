@@ -8,15 +8,6 @@ const EmployeeDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-sidebar">
-        <h2 className="sidebar-title">Employee</h2>
-        <nav className="sidebar-nav">
-          <Link to="/dashboard" className="nav-item active"><Home size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Overview</Link>
-          <Link to="/attendance" className="nav-item"><Clock size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Attendance</Link>
-          <Link to="/leave" className="nav-item"><Calendar size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Leave</Link>
-          <a href="#tasks" className="nav-item"><CheckSquare size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Tasks</a>
-        </nav>
-      </div>
       <div className="dashboard-main">
         <header className="dashboard-header">
           <h1>Welcome back!</h1>

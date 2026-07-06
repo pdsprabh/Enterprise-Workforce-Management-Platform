@@ -7,15 +7,6 @@ const SuperAdminDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-sidebar">
-        <h2 className="sidebar-title">Super Admin</h2>
-        <nav className="sidebar-nav">
-          <a href="#" className="nav-item active"><Database size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Tenants</a>
-          <a href="#" className="nav-item"><Server size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Infrastructure</a>
-          <a href="#" className="nav-item"><Settings size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Settings</a>
-          <a href="#" className="nav-item"><Users size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Global Users</a>
-        </nav>
-      </div>
       <div className="dashboard-main">
         <header className="dashboard-header">
           <h1>Platform Administration</h1>

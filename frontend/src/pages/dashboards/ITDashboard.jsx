@@ -7,15 +7,6 @@ const ITDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-sidebar">
-        <h2 className="sidebar-title">IT Admin</h2>
-        <nav className="sidebar-nav">
-          <a href="#" className="nav-item active"><Activity size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> System Status</a>
-          <a href="#" className="nav-item"><Ticket size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Tickets</a>
-          <a href="#" className="nav-item"><Monitor size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Assets</a>
-          <a href="#" className="nav-item"><Shield size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Security</a>
-        </nav>
-      </div>
       <div className="dashboard-main">
         <header className="dashboard-header">
           <h1>IT Operations Center</h1>

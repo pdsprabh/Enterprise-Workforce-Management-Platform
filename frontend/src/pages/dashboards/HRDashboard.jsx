@@ -7,15 +7,6 @@ const HRDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-sidebar">
-        <h2 className="sidebar-title">HR Manager</h2>
-        <nav className="sidebar-nav">
-          <a href="#" className="nav-item active"><Users size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Overview</a>
-          <a href="#" className="nav-item"><FileText size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Directory</a>
-          <a href="#" className="nav-item"><UserPlus size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Recruitment</a>
-          <a href="#" className="nav-item"><FileSignature size={18} style={{marginRight:'8px', verticalAlign:'middle'}}/> Approvals</a>
-        </nav>
-      </div>
       <div className="dashboard-main">
         <header className="dashboard-header">
           <h1>HR Operations</h1>
