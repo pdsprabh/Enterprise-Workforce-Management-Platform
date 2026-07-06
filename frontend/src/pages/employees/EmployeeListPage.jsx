@@ -7,7 +7,7 @@ import Avatar from '../../components/ui/Avatar';
 import SearchBar from '../../components/ui/SearchBar';
 import Pagination from '../../components/ui/Pagination';
 import Button from '../../components/ui/Button';
-import { formatDate, formatCurrency } from '../../utils/formatters';
+import { formatDate } from '../../utils/formatters';
 import { getEmployees } from '../../api/employeeApi';
 
 export default function EmployeeListPage() {

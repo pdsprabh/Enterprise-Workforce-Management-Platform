@@ -45,6 +45,13 @@ export default function AnimatedSparkline({
   const W = 500; // SVG viewBox width (scales with CSS)
   const H = height - (showLabels ? 18 : 0);
 
+  // Measure path length after render to drive the draw animation
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const pathEl = svgRef.current.querySelector('.sparkline__line');
+    if (pathEl) setPathLen(pathEl.getTotalLength());
+  }, [data, smooth]);
+
   if (!data || data.length < 2) return null;
 
   const values  = data.map(d => d.value);
@@ -92,13 +99,6 @@ export default function AnimatedSparkline({
   const areaPath = buildAreaPath(points);
   const lastPt   = points[points.length - 1];
 
-  // Measure path length after render to drive the draw animation
-  useEffect(() => {
-    if (!svgRef.current) return;
-    const pathEl = svgRef.current.querySelector('.sparkline__line');
-    if (pathEl) setPathLen(pathEl.getTotalLength());
-  }, [data, smooth]);
-
   // ── Hover interaction ─────────────────────────────────────────
   function handleMouseMove(e) {
     if (!showTooltip) return;
@@ -112,7 +112,7 @@ export default function AnimatedSparkline({
       if (d < minDist) { minDist = d; closest = i; }
     });
     const pt = points[closest];
-    const px = (pt.x / W) * rect.width + rect.left - rect.left; // px within SVG element
+    const _px = (pt.x / W) * rect.width + rect.left - rect.left; // px within SVG element
     const py = (pt.y / H) * rect.height;
     setHovIdx(closest);
     setTooltip({ x: (pt.x / W) * 100, y: py, label: pt.label, value: pt.value });
