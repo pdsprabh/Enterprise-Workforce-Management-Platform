@@ -315,15 +315,15 @@ export const NAV_SECTIONS = [
   {
     title: 'Organization',
     items: [
-      { label: 'Payroll', path: '/payroll', icon: 'dollar-sign', allowedRoles: ['All'] },
-      { label: 'Performance', path: '/performance', icon: 'trending-up', allowedRoles: ['All'] },
-      { label: 'Projects', path: '/projects', icon: 'briefcase', allowedRoles: ['All'] },
+      { label: 'Payroll', path: '/payroll', icon: 'dollar-sign', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'] },
+      { label: 'Performance', path: '/performance', icon: 'trending-up', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'] },
+      { label: 'Projects', path: '/projects', icon: 'briefcase', allowedRoles: ['Super Admin', 'Organization Admin', 'IT Administrator', 'HR Manager'] },
     ],
   },
   {
     title: 'Operations',
     items: [
-      { label: 'Assets', path: '/assets', icon: 'monitor', allowedRoles: ['Super Admin', 'IT Administrator', 'Employee'] },
+      { label: 'Assets', path: '/assets', icon: 'monitor', allowedRoles: ['Super Admin', 'IT Administrator'] },
       { label: 'Helpdesk', path: '/helpdesk', icon: 'headphones', allowedRoles: ['All'] },
       { label: 'Documents', path: '/documents', icon: 'file-text', allowedRoles: ['All'] },
       { label: 'Settings', path: '/settings', icon: 'settings', allowedRoles: ['All'] },

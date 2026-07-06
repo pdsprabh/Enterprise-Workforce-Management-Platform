@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Home, Clock, Calendar, CheckSquare, X } from 'lucide-react';
 import './DashboardTheme.css';
 
@@ -10,10 +11,10 @@ const EmployeeDashboard = () => {
       <div className="dashboard-sidebar">
         <h2 className="sidebar-title">Employee</h2>
         <nav className="sidebar-nav">
-          <a href="#" className="nav-item active"><Home size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Overview</a>
-          <a href="#" className="nav-item"><Clock size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Attendance</a>
-          <a href="#" className="nav-item"><Calendar size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Leave</a>
-          <a href="#" className="nav-item"><CheckSquare size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Tasks</a>
+          <Link to="/dashboard" className="nav-item active"><Home size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Overview</Link>
+          <Link to="/attendance" className="nav-item"><Clock size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Attendance</Link>
+          <Link to="/leave" className="nav-item"><Calendar size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Leave</Link>
+          <a href="#tasks" className="nav-item"><CheckSquare size={18} style={{marginRight: '8px', verticalAlign: 'middle'}}/> Tasks</a>
         </nav>
       </div>
       <div className="dashboard-main">
@@ -25,7 +26,7 @@ const EmployeeDashboard = () => {
           </div>
         </header>
         <div className="dashboard-grid">
-          <div className="dashboard-card" style={{ gridColumn: 'span 2' }}>
+          <div id="tasks" className="dashboard-card" style={{ gridColumn: 'span 2' }}>
             <h3>Recent Tasks</h3>
             <div className="task-list">
               <div className="task-item priority-high">
