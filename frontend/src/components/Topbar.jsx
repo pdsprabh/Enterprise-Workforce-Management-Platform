@@ -100,8 +100,8 @@ export default function Topbar() {
                 <p className="topbar__dropdown-email">{user?.email || 'user@example.com'}</p>
               </div>
               <div className="topbar__dropdown-menu">
-                <button onClick={() => setShowDropdown(false)}>Profile</button>
-                <button onClick={() => setShowDropdown(false)}>Settings</button>
+                <button onClick={() => { setShowDropdown(false); navigate('/profile'); }}>Profile</button>
+                <button onClick={() => { setShowDropdown(false); navigate('/settings'); }}>Settings</button>
                 <button onClick={handleLogout} className="text-danger">Logout</button>
               </div>
             </div>

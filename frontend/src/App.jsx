@@ -6,9 +6,13 @@ import NotificationProvider from './context/NotificationContext';
 
 import ProtectedRoute from './routes/ProtectedRoute';
 import PublicRoute from './routes/PublicRoute';
+import RoleRoute from './routes/RoleRoute';
 
 import AuthLayout from './components/AuthLayout';
 import DashboardLayout from './layouts/DashboardLayout';
+
+// Landing page
+import LandingPage from './pages/landing/LandingPage';
 
 // Auth pages
 import LoginPage from './pages/auth/LoginPage';
@@ -39,6 +43,9 @@ import AnalyticsPage from './pages/analytics/AnalyticsPage';
 import DocumentsPage from './pages/documents/DocumentsPage';
 import AIAssistantPage from './pages/ai-assistant/AIAssistantPage';
 
+// Settings
+import SettingsPage from './pages/settings/SettingsPage';
+import ProfilePage from './pages/profile/ProfilePage';
 // Placeholder for modules not yet implemented (e.g., Assets)
 function Placeholder({ title }) {
   return (
@@ -63,12 +70,12 @@ function App() {
               <Routes>
                 {/* ── Public Routes (Auth) ── */}
                 <Route element={<PublicRoute />}>
-                  {/* Login: full-screen layout — no AuthLayout wrapper */}
+                  {/* Login & Register: full-screen layout — no AuthLayout wrapper */}
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
 
-                  {/* Register + Forgot: use the centered card AuthLayout */}
+                  {/* Forgot Password: use the centered card AuthLayout */}
                   <Route element={<AuthLayout />}>
-                    <Route path="/register" element={<RegisterPage />} />
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   </Route>
                 </Route>
@@ -91,25 +98,39 @@ function App() {
                     {/* Day 4 */}
                     <Route path="/payroll" element={<PayrollPage />} />
                     <Route path="/performance" element={<PerformancePage />} />
-                    <Route path="/recruitment" element={<RecruitmentPage />} />
+                    
+                    {/* Restricted Recruitment Route */}
+                    <Route element={<RoleRoute allowedRoles={['Super Admin', 'HR Manager']} />}>
+                      <Route path="/recruitment" element={<RecruitmentPage />} />
+                    </Route>
 
                     {/* Day 5 */}
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/helpdesk" element={<HelpdeskPage />} />
 
                     {/* Day 6 */}
-                    <Route path="/analytics" element={<AnalyticsPage />} />
+                    {/* Restricted Analytics Route */}
+                    <Route element={<RoleRoute allowedRoles={['Super Admin', 'Organization Admin', 'HR Manager']} />}>
+                      <Route path="/analytics" element={<AnalyticsPage />} />
+                    </Route>
+                    
                     <Route path="/documents" element={<DocumentsPage />} />
                     <Route path="/ai-assistant" element={<AIAssistantPage />} />
+                    
+                    {/* Settings & Profile - Available to all authenticated users */}
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
 
-                    {/* Still placeholder */}
-                    <Route path="/assets" element={<Placeholder title="Assets" />} />
+                    {/* Restricted Assets Route */}
+                    <Route element={<RoleRoute allowedRoles={['Super Admin', 'IT Administrator', 'Employee']} />}>
+                      <Route path="/assets" element={<Placeholder title="Assets" />} />
+                    </Route>
                   </Route>
                 </Route>
 
-                {/* ── Redirects ── */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                {/* ── Landing Page & Redirects ── */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </BrowserRouter>
           </NotificationProvider>

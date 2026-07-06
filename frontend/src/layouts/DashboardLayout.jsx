@@ -1,18 +1,11 @@
+import { useContext } from 'react';
 import { Outlet } from 'react-router-dom';
 import Topbar from '../components/Topbar';
 import SideRays from '../components/ui/SideRays';
 import StaggeredMenu from '../components/ui/StaggeredMenu';
 import { NAV_SECTIONS } from '../utils/constants';
+import { AuthContext } from '../context/AuthContext';
 import './DashboardLayout.css';
-
-// Flatten all nav sections into StaggeredMenu items
-const MENU_ITEMS = NAV_SECTIONS.flatMap(section =>
-  section.items.map(item => ({
-    label: item.label,
-    ariaLabel: `Go to ${item.label}`,
-    link: item.path,
-  }))
-);
 
 const SOCIAL_ITEMS = [
   { label: 'GitHub',   link: 'https://github.com' },
@@ -20,6 +13,19 @@ const SOCIAL_ITEMS = [
 ];
 
 export default function DashboardLayout() {
+  const { user } = useContext(AuthContext);
+
+  // Flatten all nav sections into StaggeredMenu items, filtering by user role
+  const MENU_ITEMS = NAV_SECTIONS.flatMap(section =>
+    section.items
+      .filter(item => !item.allowedRoles || item.allowedRoles.includes('All') || item.allowedRoles.includes(user?.role))
+      .map(item => ({
+        label: item.label,
+        ariaLabel: `Go to ${item.label}`,
+        link: item.path,
+      }))
+  );
+
   return (
     <div className="dashboard-layout">
 

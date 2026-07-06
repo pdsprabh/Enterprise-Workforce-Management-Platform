@@ -1,16 +1,18 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const ROLES = {
-  SUPER_ADMIN: 'super_admin',
-  HR_MANAGER: 'hr_manager',
-  TEAM_LEAD: 'team_lead',
-  EMPLOYEE: 'employee',
+  SUPER_ADMIN: 'Super Admin',
+  ORG_ADMIN: 'Organization Admin',
+  HR_MANAGER: 'HR Manager',
+  IT_ADMIN: 'IT Administrator',
+  EMPLOYEE: 'Employee',
 };
 
 export const ROLE_LABELS = {
   [ROLES.SUPER_ADMIN]: 'Super Admin',
+  [ROLES.ORG_ADMIN]: 'Organization Admin',
   [ROLES.HR_MANAGER]: 'HR Manager',
-  [ROLES.TEAM_LEAD]: 'Team Lead',
+  [ROLES.IT_ADMIN]: 'IT Administrator',
   [ROLES.EMPLOYEE]: 'Employee',
 };
 
@@ -298,39 +300,40 @@ export const NAV_SECTIONS = [
   {
     title: 'Main',
     items: [
-      { label: 'Dashboard', path: '/dashboard', icon: 'grid' },
+      { label: 'Dashboard', path: '/dashboard', icon: 'grid', allowedRoles: ['All'] },
     ],
   },
   {
     title: 'People',
     items: [
-      { label: 'Employees', path: '/employees', icon: 'users' },
-      { label: 'Attendance', path: '/attendance', icon: 'clock' },
-      { label: 'Leave', path: '/leave', icon: 'calendar' },
-      { label: 'Recruitment', path: '/recruitment', icon: 'user-plus' },
+      { label: 'Employees', path: '/employees', icon: 'users', allowedRoles: ['All'] },
+      { label: 'Attendance', path: '/attendance', icon: 'clock', allowedRoles: ['All'] },
+      { label: 'Leave', path: '/leave', icon: 'calendar', allowedRoles: ['All'] },
+      { label: 'Recruitment', path: '/recruitment', icon: 'user-plus', allowedRoles: ['Super Admin', 'HR Manager'] },
     ],
   },
   {
     title: 'Organization',
     items: [
-      { label: 'Payroll', path: '/payroll', icon: 'dollar-sign' },
-      { label: 'Performance', path: '/performance', icon: 'trending-up' },
-      { label: 'Projects', path: '/projects', icon: 'briefcase' },
+      { label: 'Payroll', path: '/payroll', icon: 'dollar-sign', allowedRoles: ['All'] },
+      { label: 'Performance', path: '/performance', icon: 'trending-up', allowedRoles: ['All'] },
+      { label: 'Projects', path: '/projects', icon: 'briefcase', allowedRoles: ['All'] },
     ],
   },
   {
     title: 'Operations',
     items: [
-      { label: 'Assets', path: '/assets', icon: 'monitor' },
-      { label: 'Helpdesk', path: '/helpdesk', icon: 'headphones' },
-      { label: 'Documents', path: '/documents', icon: 'file-text' },
+      { label: 'Assets', path: '/assets', icon: 'monitor', allowedRoles: ['Super Admin', 'IT Administrator', 'Employee'] },
+      { label: 'Helpdesk', path: '/helpdesk', icon: 'headphones', allowedRoles: ['All'] },
+      { label: 'Documents', path: '/documents', icon: 'file-text', allowedRoles: ['All'] },
+      { label: 'Settings', path: '/settings', icon: 'settings', allowedRoles: ['All'] },
     ],
   },
   {
     title: 'Insights',
     items: [
-      { label: 'Analytics', path: '/analytics', icon: 'bar-chart-2' },
-      { label: 'AI Assistant', path: '/ai-assistant', icon: 'cpu' },
+      { label: 'Analytics', path: '/analytics', icon: 'bar-chart-2', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager'] },
+      { label: 'AI Assistant', path: '/ai-assistant', icon: 'cpu', allowedRoles: ['All'] },
     ],
   },
 ];

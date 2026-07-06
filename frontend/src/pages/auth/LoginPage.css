@@ -85,8 +85,8 @@
   z-index: 1;
   display: flex;
   width: 100%;
-  max-width: 900px;
-  min-height: 580px;
+  max-width: 1100px;
+  min-height: 640px;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #2C333A;
@@ -102,7 +102,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 48px 40px;
+  padding: 56px 48px;
 }
 
 @media (max-width: 768px) {
