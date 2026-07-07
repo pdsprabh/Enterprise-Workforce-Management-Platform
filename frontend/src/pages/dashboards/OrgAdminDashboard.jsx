@@ -260,6 +260,7 @@ const OrgAdminDashboard = () => {
       }
     } catch (error) {
       console.error('Failed to update department budget', error);
+      window.alert(error.response?.data?.message || 'Failed to update budget. Please try again.');
     }
   };
 

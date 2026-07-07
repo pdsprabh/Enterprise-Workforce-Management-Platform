@@ -35,7 +35,9 @@ function fileIcon(name = '') {
 
 // ── Upload / Edit modal ──────────────────────────────────
 function DocumentFormModal({ isOpen, onClose, onSaved, organizations, editDoc }) {
-  const { showToast } = useToast();
+  const { addToast } = useToast();
+  // Compatibility shim for showToast('msg', 'type') call pattern
+  const showToast = (message, type = 'info') => addToast({ type, message });
   const isEdit = !!editDoc;
 
   const [form, setForm] = useState({
@@ -196,7 +198,8 @@ function DocumentFormModal({ isOpen, onClose, onSaved, organizations, editDoc })
 // ── Main page ────────────────────────────────────────────
 export default function SuperAdminDocumentsPage() {
   const { user } = useContext(AuthContext);
-  const { showToast } = useToast();
+  const { addToast } = useToast();
+  const showToast = (message, type = 'info') => addToast({ type, message });
 
   const [documents, setDocuments] = useState([]);
   const [stats, setStats] = useState(null);

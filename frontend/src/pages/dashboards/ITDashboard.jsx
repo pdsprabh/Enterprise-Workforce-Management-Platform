@@ -73,6 +73,8 @@ const ITDashboard = () => {
       }
     } catch (error) {
       console.error('Failed to update metrics', error);
+      // Show inline error in alert — no Toast available in this component, use alert as fallback
+      window.alert(error.response?.data?.message || 'Failed to update metrics. Please try again.');
     }
   };
 
@@ -87,6 +89,7 @@ const ITDashboard = () => {
       }
     } catch (error) {
       console.error('Failed to create alert', error);
+      window.alert(error.response?.data?.message || 'Failed to log alert. Please try again.');
     }
   };
 

@@ -5,16 +5,19 @@ import Button from '../../components/ui/Button';
 import LeaveBalanceCard from '../../components/leave/LeaveBalanceCard';
 import ApplyLeaveModal from '../../components/leave/ApplyLeaveModal';
 import { useToast } from '../../components/ui/Toast';
+import useAuth from '../../hooks/useAuth';
 import api from '../../api/axiosInstance';
 import { LEAVE_TYPE_LABELS } from '../../utils/constants';
 import { formatDate } from '../../utils/formatters';
 import './LeavePage.css';
 
-const TABS = [
+// "Team Requests" tab is only meaningful for HR/Admin roles that can approve leaves
+const BASE_TABS = [
   { key: 'my-leaves', label: 'My Leaves' },
   { key: 'balance', label: 'Leave Balance' },
-  { key: 'team', label: 'Team Requests' },
 ];
+const TEAM_TAB = { key: 'team', label: 'Team Requests' };
+const HR_ROLES = ['HR Manager', 'Super Admin', 'Organization Admin'];
 
 function leaveBadgeColor(status) {
   switch (status) {
@@ -27,6 +30,10 @@ function leaveBadgeColor(status) {
 }
 
 export default function LeavePage() {
+  const { user } = useAuth();
+  const canManageLeaves = HR_ROLES.includes(user?.role);
+  const TABS = canManageLeaves ? [...BASE_TABS, TEAM_TAB] : BASE_TABS;
+
   const [activeTab, setActiveTab] = useState('my-leaves');
   const [modalOpen, setModalOpen] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -92,13 +99,20 @@ export default function LeavePage() {
   }
 
   async function handleCancelLeave(id) {
-    // Note: cancellation API might not exist yet, we update status to cancelled via updateLeaveStatus endpoint 
     try {
-      await api.put(`/leaves/${id}/status`, { status: 'cancelled' });
+      // PUT /leaves/:id/status is HR-restricted; employees use the cancel endpoint
+      await api.put(`/leaves/${id}/cancel`);
       addToast({ type: 'info', message: 'Leave request cancelled.' });
       fetchData();
     } catch (error) {
-      addToast({ type: 'error', message: 'Failed to cancel leave request.' });
+      // Fallback: try the generic status endpoint (works for HR+ roles)
+      try {
+        await api.put(`/leaves/${id}/status`, { status: 'cancelled' });
+        addToast({ type: 'info', message: 'Leave request cancelled.' });
+        fetchData();
+      } catch {
+        addToast({ type: 'error', message: 'Failed to cancel leave request.' });
+      }
     }
   }
 
@@ -106,7 +120,7 @@ export default function LeavePage() {
     try {
       await api.put(`/leaves/${id}/status`, { status: 'approved' });
       addToast({ type: 'success', message: 'Leave approved.' });
-      // Refresh team leaves if implemented
+      fetchData(); // Refresh so the row updates
     } catch (error) {
       addToast({ type: 'error', message: 'Failed to approve leave.' });
     }
@@ -116,7 +130,7 @@ export default function LeavePage() {
     try {
       await api.put(`/leaves/${id}/status`, { status: 'rejected' });
       addToast({ type: 'warning', message: 'Leave rejected.' });
-      // Refresh team leaves if implemented
+      fetchData(); // Refresh so the row updates
     } catch (error) {
       addToast({ type: 'error', message: 'Failed to reject leave.' });
     }

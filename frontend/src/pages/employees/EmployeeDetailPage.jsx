@@ -18,7 +18,11 @@ export default function EmployeeDetailPage() {
     async function fetchEmployee() {
       try {
         const response = await getEmployeeById(id);
+        // getEmployeeById returns the unwrapped axios data object {success, data}
         if (response.success) {
+          setEmployee(response.data);
+        } else if (response.data) {
+          // fallback: some responses nest data differently
           setEmployee(response.data);
         }
       } catch (err) {

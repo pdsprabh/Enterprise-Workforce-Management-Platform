@@ -53,6 +53,7 @@ export default function AddEmployeePage() {
         mobile: formData.phone,
         dob: formData.dob || undefined,
         address: formData.address || undefined,
+        department: formData.department,
         designation: formData.designation,
         joiningDate: formData.joinDate,
         salaryGrade: formData.salary,

@@ -14,7 +14,7 @@ const TABS = [
 ];
 
 export default function PerformancePage() {
-  const { showToast } = useToast();
+  const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState('goals');
   const [goals, setGoals] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -34,7 +34,7 @@ export default function PerformancePage() {
         }
       } catch (err) {
         console.error(err);
-        showToast('Failed to load performance data.', 'error');
+        addToast({ type: 'error', message: 'Failed to load performance data.' });
       } finally {
         setLoading(false);
       }
@@ -42,14 +42,15 @@ export default function PerformancePage() {
     fetchPerformance();
   }, [showToast]);
 
+  // Fix showToast calls in PerformancePage — addToast is the correct hook method
   const handleUpdateGoal = async (goalId, newProgress, newStatus) => {
     try {
       await api.put(`/performance/goals/${goalId}`, { progress: newProgress, status: newStatus });
       setGoals(prev => prev.map(g => g.id === goalId ? { ...g, progress: newProgress, status: newStatus } : g));
-      showToast('Goal updated successfully', 'success');
+      addToast({ type: 'success', message: 'Goal updated successfully' });
     } catch (err) {
       console.error(err);
-      showToast('Failed to update goal', 'error');
+      addToast({ type: 'error', message: 'Failed to update goal' });
     }
   };
 

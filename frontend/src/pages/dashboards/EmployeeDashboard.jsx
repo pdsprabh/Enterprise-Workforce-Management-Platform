@@ -13,7 +13,9 @@ const EmployeeDashboard = () => {
   const [ticketCategory, setTicketCategory] = useState('it');
   const [ticketDescription, setTicketDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { showToast } = useToast();
+  const { addToast } = useToast();
+  // Compatibility shim so existing showToast('msg', 'type') calls work
+  const showToast = (message, type = 'info') => addToast({ type, message });
 
   const [leaveBalance, setLeaveBalance] = useState(0);
   const [recentTickets, setRecentTickets] = useState([]);
@@ -25,7 +27,7 @@ const EmployeeDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const [leaveRes, ticketsRes, projectsRes, attendanceRes] = await Promise.allSettled([
-          api.get('/leave/balance'),
+          api.get('/leaves/balance'),   // backend mounted at /api/leaves (not /api/leave)
           api.get('/helpdesk'),
           api.get('/projects'),
           api.get('/attendance/me')

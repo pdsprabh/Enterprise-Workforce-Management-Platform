@@ -29,7 +29,7 @@ const DEFAULT_FORM = {
 };
 
 export default function CreateTicketModal({ isOpen, onClose, onSubmit }) {
-  const { showToast } = useToast();
+  const { addToast } = useToast();
   const [form, setForm] = useState(DEFAULT_FORM);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,8 +52,8 @@ export default function CreateTicketModal({ isOpen, onClose, onSubmit }) {
     setIsSubmitting(true);
     await new Promise((r) => setTimeout(r, 800));
 
-    if (onSubmit) onSubmit({ ...form, id: `tkt-${Date.now()}`, createdAt: new Date().toISOString() });
-    showToast('Ticket created successfully!', 'success');
+    if (onSubmit) onSubmit({ ...form });
+    // Toast is shown by the parent (HelpdeskPage) after the API call succeeds
     setForm(DEFAULT_FORM);
     setErrors({});
     setIsSubmitting(false);

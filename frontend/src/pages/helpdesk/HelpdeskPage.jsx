@@ -25,7 +25,8 @@ const STATUS_FILTERS = [
 
 export default function HelpdeskPage() {
   const { user } = useAuth();
-  const { showToast } = useToast();
+  const { addToast: showToastRaw } = useToast();
+  const showToast = (message, type = 'info') => showToastRaw({ type, message });
   const [activeTab, setActiveTab] = useState('my');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -41,6 +42,7 @@ export default function HelpdeskPage() {
         ...t,
         id: t._id,
         ticketNo: `TKT-${t._id.substring(t._id.length - 4).toUpperCase()}`,
+        raisedByUserId: t.raisedBy?._id || t.raisedBy,  // keep raw id for filtering
         raisedBy: t.raisedBy?.name || 'Unknown',
         assignedTo: t.assignedToIT?.name || 'Unassigned',
       }));
@@ -56,8 +58,9 @@ export default function HelpdeskPage() {
     fetchTickets();
   }, []);
 
+  // Filter "My Tickets" by user ID for reliability, fall back to name comparison
   const currentTickets = activeTab === 'my'
-    ? tickets.filter((t) => t.raisedBy === user?.name) // Note: In a real app, backend filters 'my' tickets. Since Employee only gets 'my' tickets anyway, this works, but for admins it shows tickets they raised.
+    ? tickets.filter((t) => t.raisedByUserId === user?.id || t.raisedBy === user?.name)
     : tickets;
 
   const filteredTickets = statusFilter === 'all'

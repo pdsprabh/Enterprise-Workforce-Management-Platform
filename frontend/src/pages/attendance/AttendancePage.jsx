@@ -232,7 +232,7 @@ export default function AttendancePage() {
                 <tbody>
                   {logRecords.map((r) => (
                     <tr
-                      key={r.id}
+                      key={r._id || r.id}
                       style={{ borderBottom: '1px solid var(--color-border, #e5e7eb)' }}
                     >
                       {logColumns.map((col) => (

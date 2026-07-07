@@ -8,8 +8,9 @@ import api from '../../api/axiosInstance';
 import './PayrollPage.css';
 
 export default function PayrollPage() {
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
+  const now = new Date();
+  const [month, setMonth] = useState(now.toLocaleString('en-US', { month: 'long' }));
+  const [year, setYear] = useState(now.getFullYear());
   const [selectedPayslip, setSelectedPayslip] = useState(null);
   
   const [payslips, setPayslips] = useState([]);
@@ -25,11 +26,8 @@ export default function PayrollPage() {
         if (data.length > 0) {
           setMonth(data[0].month);
           setYear(data[0].year);
-        } else {
-          const d = new Date();
-          setMonth(d.toLocaleString('en-US', { month: 'long' }));
-          setYear(d.getFullYear());
         }
+        // else: month/year already defaulted to current month in useState
       } catch (err) {
         console.error(err);
         addToast({ type: 'error', message: 'Failed to fetch payroll data' });
@@ -59,14 +57,18 @@ export default function PayrollPage() {
   const monthLabel = `${month} ${year}`;
 
   function prevMonth() {
+    if (!month || !year) return;
     const d = new Date(`${month} 1, ${year}`);
+    if (isNaN(d.getTime())) return;
     d.setMonth(d.getMonth() - 1);
     setMonth(d.toLocaleString('en-US', { month: 'long' }));
     setYear(d.getFullYear());
   }
 
   function nextMonth() {
+    if (!month || !year) return;
     const d = new Date(`${month} 1, ${year}`);
+    if (isNaN(d.getTime())) return;
     d.setMonth(d.getMonth() + 1);
     setMonth(d.toLocaleString('en-US', { month: 'long' }));
     setYear(d.getFullYear());

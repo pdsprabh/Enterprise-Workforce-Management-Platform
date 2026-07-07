@@ -45,7 +45,7 @@ export default function ProfilePage() {
             </div>
             <div className="profile-field">
               <label>Joined Date</label>
-              <p>{new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              <p>{user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}</p>
             </div>
             <div className="profile-field">
               <label>Status</label>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card, { CardHeader, CardBody } from '../../components/ui/Card';
 import DataTable from '../../components/ui/DataTable';
@@ -19,8 +19,8 @@ export default function EmployeeListPage() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch employees
-  useMemo(() => {
+  // Fetch employees — use useEffect, not useMemo, for side effects
+  useEffect(() => {
     async function loadEmployees() {
       try {
         setLoading(true);

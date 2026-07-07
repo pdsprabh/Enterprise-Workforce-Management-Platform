@@ -6,6 +6,7 @@ import DocumentRow from '../../components/documents/DocumentRow';
 import { DOCUMENT_TYPES } from '../../utils/constants';
 import { useToast } from '../../components/ui/Toast';
 import api from '../../api/axiosInstance';
+import { deleteDocument } from '../../api/documentApi';
 import './DocumentsPage.css';
 
 const FILTER_TABS = [
@@ -19,7 +20,7 @@ const FILTER_TABS = [
 ];
 
 export default function DocumentsPage() {
-  const { showToast } = useToast();
+  const { addToast } = useToast();
   const [documents, setDocuments] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
@@ -41,13 +42,13 @@ export default function DocumentsPage() {
         setDocuments(mappedDocs);
       } catch (err) {
         console.error(err);
-        showToast('Failed to load documents.', 'error');
+        addToast({ type: 'error', message: 'Failed to load documents.' });
       } finally {
         setLoading(false);
       }
     }
     fetchDocuments();
-  }, [showToast]);
+  }, [addToast]);
 
   const filtered = useMemo(() => {
     return documents
@@ -56,16 +57,22 @@ export default function DocumentsPage() {
   }, [documents, activeTab, search]);
 
   function handleDownload(doc) {
-    showToast(`Downloading "${doc.name}"…`, 'info');
+    addToast({ type: 'info', message: `Downloading "${doc.name}"…` });
   }
 
-  function handleDelete(id) {
-    setDocuments((prev) => prev.filter((d) => d.id !== id));
-    showToast('Document deleted.', 'success');
+  async function handleDelete(id) {
+    try {
+      await deleteDocument(id);
+      setDocuments((prev) => prev.filter((d) => d.id !== id));
+      addToast({ type: 'success', message: 'Document deleted.' });
+    } catch (err) {
+      console.error(err);
+      addToast({ type: 'error', message: err.response?.data?.message || 'Failed to delete document.' });
+    }
   }
 
   function handleUpload() {
-    showToast('Upload feature coming soon!', 'info');
+    addToast({ type: 'info', message: 'Upload feature coming soon!' });
   }
 
   return (

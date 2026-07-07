@@ -29,7 +29,8 @@ const TABS = [
 ];
 
 export default function ProjectsPage() {
-  const { showToast } = useToast();
+  const { addToast: showToastRaw } = useToast();
+  const showToast = (message, type = 'info') => showToastRaw({ type, message });
   const [activeTab, setActiveTab] = useState('projects');
   const [projectFilter, setProjectFilter] = useState('all');
   const [taskFilter, setTaskFilter] = useState('all');

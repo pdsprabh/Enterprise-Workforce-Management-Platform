@@ -90,14 +90,11 @@ describe('Enterprise Endpoints (Day 3 & 4)', () => {
     it('should create a helpdesk ticket', async () => {
         const res = await request(app)
             .post('/api/helpdesk')
-            // Using empToken because HR Manager is not authorized to create tickets by default in our routes
-            // Note: because the above replacement might have kept `Bearer ${hrToken}`, I am manually changing it.
-            // Oh wait, in the previous block I wrote `Bearer ${hrToken}` again at the end by accident.
             .set('Authorization', `Bearer ${empToken}`)
             .send({
                 title: 'Mouse not working',
                 description: 'Need a new mouse',
-                raisedBy: employeeId
+                category: 'it'   // category is required by HelpDeskTicket schema
             });
             
         expect(res.statusCode).toEqual(201);

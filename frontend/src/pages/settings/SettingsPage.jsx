@@ -80,6 +80,27 @@ export default function SettingsPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validate password change fields when on the security tab
+    if (activeTab === 'security') {
+      const { currentPassword, newPassword, confirmPassword } = securityData;
+      // Only validate if the user has started filling password fields
+      if (newPassword || confirmPassword || currentPassword) {
+        if (!currentPassword) {
+          addToast({ type: 'error', message: 'Please enter your current password.' });
+          return;
+        }
+        if (newPassword.length < 8) {
+          addToast({ type: 'error', message: 'New password must be at least 8 characters.' });
+          return;
+        }
+        if (newPassword !== confirmPassword) {
+          addToast({ type: 'error', message: 'New password and confirm password do not match.' });
+          return;
+        }
+      }
+    }
+
     setIsSaving(true);
     
     // Simulate network request

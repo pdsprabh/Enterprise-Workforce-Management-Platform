@@ -178,8 +178,8 @@ export default function AdvancedNavbar() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuLink asChild onSelect={() => navigate('/directory')} className={cn(navigationMenuTriggerStyle(), "bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white h-9 px-3 cursor-pointer")}>
-                  <Link to="/directory">
+                <NavigationMenuLink asChild onSelect={() => navigate('/dashboard')} className={cn(navigationMenuTriggerStyle(), "bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white h-9 px-3 cursor-pointer")}>
+                  <Link to="/dashboard">
                     About Us
                   </Link>
                 </NavigationMenuLink>
