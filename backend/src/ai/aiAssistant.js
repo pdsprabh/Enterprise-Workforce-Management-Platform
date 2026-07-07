@@ -6,7 +6,13 @@ class AIAssistant {
     }
 
     async analyzeResume(resumeText) {
-        throw new Error('Not implemented yet');
+        // Mock implementation for testing
+        return {
+            CandidateScore: "85%",
+            Skills: ["React", "Node.js", "MongoDB", "Express", "Docker"],
+            Missing: ["AWS", "Redis"],
+            Summary: "Strong candidate with a good background in MERN stack. Needs training on cloud deployment."
+        };
     }
 
     async answerContextualQuery(query, employeeContext) {

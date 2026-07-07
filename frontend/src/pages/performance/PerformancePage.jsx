@@ -40,7 +40,7 @@ export default function PerformancePage() {
       }
     }
     fetchPerformance();
-  }, [showToast]);
+  }, []);
 
   // Fix showToast calls in PerformancePage — addToast is the correct hook method
   const handleUpdateGoal = async (goalId, newProgress, newStatus) => {

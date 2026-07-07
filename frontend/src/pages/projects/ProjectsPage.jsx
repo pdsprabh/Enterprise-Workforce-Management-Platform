@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import TabNav from '../../components/ui/TabNav';
 import Button from '../../components/ui/Button';
 import ProjectCard from '../../components/projects/ProjectCard';
@@ -30,7 +30,7 @@ const TABS = [
 
 export default function ProjectsPage() {
   const { addToast: showToastRaw } = useToast();
-  const showToast = (message, type = 'info') => showToastRaw({ type, message });
+  const showToast = useCallback((message, type = 'info') => showToastRaw({ type, message }), [showToastRaw]);
   const [activeTab, setActiveTab] = useState('projects');
   const [projectFilter, setProjectFilter] = useState('all');
   const [taskFilter, setTaskFilter] = useState('all');
