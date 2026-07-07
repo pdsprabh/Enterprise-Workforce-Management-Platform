@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Ticket, Monitor, Shield, Search, X } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './DashboardTheme.css';
 
@@ -40,9 +40,9 @@ const ITDashboard = () => {
   const fetchData = async () => {
     try {
       const [metricsRes, alertsRes, assetsRes] = await Promise.allSettled([
-        axios.get('/api/system/metrics', { withCredentials: true }),
-        axios.get('/api/system/alerts', { withCredentials: true }),
-        axios.get('/api/assets', { withCredentials: true })
+        axiosInstance.get('/system/metrics'),
+        axiosInstance.get('/system/alerts'),
+        axiosInstance.get('/assets'),
       ]);
       
       if (metricsRes.status === 'fulfilled' && metricsRes.value.data.data) {
@@ -66,7 +66,7 @@ const ITDashboard = () => {
   const handleUpdateMetrics = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put('/api/system/metrics', metricData, { withCredentials: true });
+      const res = await axiosInstance.put('/system/metrics', metricData);
       if (res.data.success) {
         setMetrics(res.data.data);
         setShowMetricsModal(false);
@@ -79,7 +79,7 @@ const ITDashboard = () => {
   const handleCreateAlert = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/api/system/alerts', alertData, { withCredentials: true });
+      const res = await axiosInstance.post('/system/alerts', alertData);
       if (res.data.success) {
         setAlerts([res.data.data, ...alerts].slice(0, 10));
         setShowAlertModal(false);

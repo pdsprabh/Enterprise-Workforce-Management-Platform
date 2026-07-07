@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Users, FileText, UserPlus, FileSignature } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import './DashboardTheme.css';
 
@@ -24,9 +24,9 @@ const HRDashboard = () => {
   const fetchData = async () => {
     try {
       const [empRes, leavesRes, recRes] = await Promise.allSettled([
-        axios.get('/api/employees', { withCredentials: true }),
-        axios.get('/api/leaves', { withCredentials: true }),
-        axios.get('/api/recruitment/candidates', { withCredentials: true })
+        axiosInstance.get('/employees'),
+        axiosInstance.get('/leaves'),
+        axiosInstance.get('/recruitment/candidates'),
       ]);
       
       if (empRes.status === 'fulfilled' && empRes.value.data.count !== undefined) {

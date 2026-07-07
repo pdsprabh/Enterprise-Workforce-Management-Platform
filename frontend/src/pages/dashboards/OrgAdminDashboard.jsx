@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, X } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getAnnouncements, createAnnouncement, deleteAnnouncement } from '../../api/announcementApi';
 import './DashboardTheme.css';
@@ -198,9 +198,9 @@ const OrgAdminDashboard = () => {
   const fetchData = async () => {
     try {
       const [empRes, projRes, deptRes] = await Promise.allSettled([
-        axios.get('/api/employees', { withCredentials: true }),
-        axios.get('/api/projects', { withCredentials: true }),
-        axios.get('/api/departments', { withCredentials: true })
+        axiosInstance.get('/employees'),
+        axiosInstance.get('/projects'),
+        axiosInstance.get('/departments'),
       ]);
       if (empRes.status === 'fulfilled' && empRes.value.data.count) setEmployeesCount(empRes.value.data.count);
       if (projRes.status === 'fulfilled' && projRes.value.data.count) setProjectsCount(projRes.value.data.count);
@@ -252,7 +252,7 @@ const OrgAdminDashboard = () => {
     e.preventDefault();
     if (!selectedDept) return;
     try {
-      const res = await axios.put(`/api/departments/${selectedDept._id}`, budgetData, { withCredentials: true });
+      const res = await axiosInstance.put(`/departments/${selectedDept._id}`, budgetData);
       if (res.data.success) {
         setDepartments(departments.map(d => d._id === selectedDept._id ? res.data.data : d));
         setShowBudgetModal(false);

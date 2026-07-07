@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Server, Settings, Users, Search, CreditCard, AlertTriangle, X } from 'lucide-react';
-import axios from 'axios';
+import { AlertTriangle, Search, X } from 'lucide-react';
+import axiosInstance from '../../api/axiosInstance';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import './DashboardTheme.css';
 
@@ -26,6 +26,8 @@ const SuperAdminDashboard = () => {
   const [alerts, setAlerts] = useState([]);
   const [showOrgModal, setShowOrgModal] = useState(false);
   const [orgData, setOrgData] = useState({ name: '', industry: 'Technology', status: 'Active' });
+  const [createError, setCreateError] = useState('');
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -34,8 +36,8 @@ const SuperAdminDashboard = () => {
   const fetchData = async () => {
     try {
       const [orgRes, alertRes] = await Promise.allSettled([
-        axios.get('/api/organizations', { withCredentials: true }),
-        axios.get('/api/system/alerts', { withCredentials: true })
+        axiosInstance.get('/organizations'),
+        axiosInstance.get('/system/alerts'),
       ]);
       
       if (orgRes.status === 'fulfilled' && orgRes.value.data.data) {
@@ -60,15 +62,24 @@ const SuperAdminDashboard = () => {
 
   const handleCreateOrg = async (e) => {
     e.preventDefault();
+    if (!orgData.name.trim()) {
+      setCreateError('Organization name is required.');
+      return;
+    }
+    setCreating(true);
+    setCreateError('');
     try {
-      const res = await axios.post('/api/organizations', orgData, { withCredentials: true });
+      const res = await axiosInstance.post('/organizations', orgData);
       if (res.data.success) {
-        setOrganizations([...organizations, res.data.data]);
+        setOrganizations(prev => [...prev, res.data.data]);
         setShowOrgModal(false);
         setOrgData({ name: '', industry: 'Technology', status: 'Active' });
       }
     } catch (error) {
       console.error('Failed to create organization', error);
+      setCreateError(error.response?.data?.message || 'Failed to create tenant. Please try again.');
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -219,27 +230,68 @@ const SuperAdminDashboard = () => {
       {showOrgModal && (
         <div className="modal-overlay">
           <div className="modal-content kinetic-modal">
-            <div className="modal-header">
-              <h2>Onboard New Tenant</h2>
-              <button onClick={() => setShowOrgModal(false)} className="close-btn"><X size={20}/></button>
+            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 style={{ margin: 0 }}>Onboard New Tenant</h2>
+              <button
+                onClick={() => { setShowOrgModal(false); setCreateError(''); }}
+                className="close-btn"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}
+              >
+                <X size={20}/>
+              </button>
             </div>
             <form onSubmit={handleCreateOrg} className="modal-form">
               <div className="form-group">
-                <label>Organization Name</label>
-                <input type="text" value={orgData.name} onChange={(e) => setOrgData({...orgData, name: e.target.value})} required className="kinetic-input" />
+                <label style={{ fontSize: 14, fontWeight: 500, display: 'block', marginBottom: 6 }}>Organization Name *</label>
+                <input
+                  type="text"
+                  value={orgData.name}
+                  onChange={(e) => setOrgData({...orgData, name: e.target.value})}
+                  required
+                  className="kinetic-input"
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                  placeholder="e.g. Acme Technologies"
+                />
               </div>
-              <div className="form-group">
-                <label>Industry</label>
-                <input type="text" value={orgData.industry} onChange={(e) => setOrgData({...orgData, industry: e.target.value})} required className="kinetic-input" />
+              <div className="form-group" style={{ marginTop: 14 }}>
+                <label style={{ fontSize: 14, fontWeight: 500, display: 'block', marginBottom: 6 }}>Industry *</label>
+                <input
+                  type="text"
+                  value={orgData.industry}
+                  onChange={(e) => setOrgData({...orgData, industry: e.target.value})}
+                  required
+                  className="kinetic-input"
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                  placeholder="e.g. Technology"
+                />
               </div>
-              <div className="form-group">
-                <label>Status</label>
-                <select value={orgData.status} onChange={(e) => setOrgData({...orgData, status: e.target.value})} className="kinetic-input">
+              <div className="form-group" style={{ marginTop: 14 }}>
+                <label style={{ fontSize: 14, fontWeight: 500, display: 'block', marginBottom: 6 }}>Status</label>
+                <select
+                  value={orgData.status}
+                  onChange={(e) => setOrgData({...orgData, status: e.target.value})}
+                  className="kinetic-input"
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
               </div>
-              <button type="submit" className="primary-action" style={{width: '100%', marginTop: '15px'}}>Create Tenant</button>
+
+              {createError && (
+                <p style={{ color: '#ef4444', fontSize: 13, marginTop: 12, marginBottom: 0 }}>
+                  {createError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="primary-action"
+                style={{ width: '100%', marginTop: '20px' }}
+                disabled={creating}
+              >
+                {creating ? 'Creating…' : 'Create Tenant'}
+              </button>
             </form>
           </div>
         </div>
