@@ -6,6 +6,7 @@ import { useNotifications } from "../context/NotificationContext"
 import { useTheme } from "../context/ThemeContext"
 import { getInitials } from "../utils/formatters"
 import NotificationPanel from "./notifications/NotificationPanel"
+import GlobalSearch from "./GlobalSearch"
 import { NAV_SECTIONS } from "../utils/constants"
 import {
   NavigationMenu,
@@ -48,13 +49,26 @@ export default function AdvancedNavbar() {
   const [showNotifications, setShowNotifications] = useState(false)
   const bellRef = useRef(null)
   const navigate = useNavigate()
+  const searchRef = useRef(null)
+
+  // ⌘K / Ctrl+K focuses the search input
+  useEffect(() => {
+    function onKeyDown(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        // Reach into GlobalSearch's internal input via a data attribute
+        const input = document.querySelector('[data-global-search-input]')
+        input?.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   const handleLogout = async () => {
     await logout()
     navigate("/login")
   }
-
-  // Filter sections and items based on role
   const allowedSections = NAV_SECTIONS.map((section) => ({
     ...section,
     items: section.items.filter(
@@ -191,17 +205,8 @@ export default function AdvancedNavbar() {
         {/* Right side actions */}
         <div className="flex flex-1 items-center justify-end gap-6">
           {/* Search Bar */}
-          <div className="hidden lg:flex relative group">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <svg className="w-4 h-4 text-slate-500 dark:text-slate-400 group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-            </div>
-            <input 
-              type="text" 
-              className="block w-64 p-2 pl-9 text-sm text-slate-900 dark:text-slate-200 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 placeholder-slate-500 dark:placeholder-slate-400 transition-all outline-none" 
-              placeholder="Search..." 
-            />
+          <div className="hidden lg:flex relative group" ref={searchRef}>
+            <GlobalSearch />
           </div>
 
           <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-4 ml-2">

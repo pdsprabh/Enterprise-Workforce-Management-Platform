@@ -20,6 +20,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const performanceRoutes = require('./routes/performanceRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
 const { initSocket } = require('./socket/socketManager');
 
 dotenv.config();
@@ -56,6 +57,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/performance', performanceRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

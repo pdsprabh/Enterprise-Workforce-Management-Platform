@@ -3,6 +3,7 @@ import AuthProvider from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './components/ui/Toast';
 import NotificationProvider from './context/NotificationContext';
+import useAuth from './hooks/useAuth';
 
 import ProtectedRoute from './routes/ProtectedRoute';
 import PublicRoute from './routes/PublicRoute';
@@ -41,23 +42,21 @@ import HelpdeskPage from './pages/helpdesk/HelpdeskPage';
 // Day 6
 import AnalyticsPage from './pages/analytics/AnalyticsPage';
 import DocumentsPage from './pages/documents/DocumentsPage';
+import SuperAdminDocumentsPage from './pages/documents/SuperAdminDocumentsPage';
 import AIAssistantPage from './pages/ai-assistant/AIAssistantPage';
 
 // Settings
 import SettingsPage from './pages/settings/SettingsPage';
 import ProfilePage from './pages/profile/ProfilePage';
-// Placeholder for modules not yet implemented (e.g., Assets)
-function Placeholder({ title }) {
-  return (
-    <div style={{ padding: '24px' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8 }}>
-        {title}
-      </h1>
-      <p style={{ color: 'var(--color-text-secondary)' }}>
-        This module is currently under development.
-      </p>
-    </div>
-  );
+import AssetsPage from './pages/assets/AssetsPage';
+
+// Role-aware document page switcher
+function DocumentsRoute() {
+  const { user } = useAuth();
+  if (user?.role === 'Super Admin') {
+    return <SuperAdminDocumentsPage />;
+  }
+  return <DocumentsPage />;
 }
 
 function App() {
@@ -120,7 +119,7 @@ function App() {
                       <Route path="/analytics" element={<AnalyticsPage />} />
                     </Route>
                     
-                    <Route path="/documents" element={<DocumentsPage />} />
+                    <Route path="/documents" element={<DocumentsRoute />} />
                     <Route path="/ai-assistant" element={<AIAssistantPage />} />
                     
                     {/* Settings & Profile - Available to all authenticated users */}
@@ -129,7 +128,7 @@ function App() {
 
                     {/* Restricted Assets Route */}
                     <Route element={<RoleRoute allowedRoles={['Super Admin', 'IT Administrator', 'Employee']} />}>
-                      <Route path="/assets" element={<Placeholder title="Assets" />} />
+                      <Route path="/assets" element={<AssetsPage />} />
                     </Route>
                   </Route>
                 </Route>

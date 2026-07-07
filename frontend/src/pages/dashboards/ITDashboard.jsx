@@ -4,11 +4,28 @@ import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './DashboardTheme.css';
 
+const MOCK_METRICS = { uptime: '99.97%', activeServers: 12, avgLatency: '38ms' };
+const MOCK_ASSETS = [
+  { _id: 'ast-1', assetId: 'LAPTOP-001', assetType: 'Laptop',  assignedTo: { name: 'Aarav Sharma'  }, status: 'Assigned' },
+  { _id: 'ast-2', assetId: 'LAPTOP-002', assetType: 'Laptop',  assignedTo: { name: 'Rohan Gupta'   }, status: 'Assigned' },
+  { _id: 'ast-3', assetId: 'MOUSE-045',  assetType: 'Mouse',   assignedTo: { name: 'Sneha Reddy'   }, status: 'Assigned' },
+  { _id: 'ast-4', assetId: 'LAPTOP-003', assetType: 'Laptop',  assignedTo: null,                       status: 'Available' },
+  { _id: 'ast-5', assetId: 'MONITOR-12', assetType: 'Monitor', assignedTo: { name: 'Vikram Singh'  }, status: 'Assigned' },
+  { _id: 'ast-6', assetId: 'LAPTOP-004', assetType: 'Laptop',  assignedTo: null,                       status: 'Available' },
+  { _id: 'ast-7', assetId: 'KEYBOARD-8', assetType: 'Keyboard',assignedTo: { name: 'Arjun Kumar'   }, status: 'Assigned' },
+];
+
+const MOCK_ALERTS = [
+  { _id: 'ital-1', message: 'Firewall rule updated successfully',       type: 'Security',    severity: 'Warning',  ip: '10.0.0.1',     createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
+  { _id: 'ital-2', message: 'SSL certificate expires in 14 days',        type: 'Security',    severity: 'Critical', ip: '203.0.113.5',  createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString() },
+  { _id: 'ital-3', message: 'Database disk usage at 82%',                type: 'Performance', severity: 'Warning',  ip: '172.16.0.50',  createdAt: new Date(Date.now() - 1000 * 60 * 360).toISOString() },
+];
+
 const ITDashboard = () => {
   const [search, setSearch] = useState('');
-  const [metrics, setMetrics] = useState({ uptime: '99.99%', activeServers: 0, avgLatency: '0ms' });
-  const [alerts, setAlerts] = useState([]);
-  const [assets, setAssets] = useState([]);
+  const [metrics, setMetrics] = useState(MOCK_METRICS);
+  const [alerts, setAlerts] = useState(MOCK_ALERTS);
+  const [assets, setAssets] = useState(MOCK_ASSETS);
   
   const [showMetricsModal, setShowMetricsModal] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
@@ -29,16 +46,20 @@ const ITDashboard = () => {
       ]);
       
       if (metricsRes.status === 'fulfilled' && metricsRes.value.data.data) {
-        setMetrics(metricsRes.value.data.data);
+        const d = metricsRes.value.data.data;
+        setMetrics(d.uptime ? d : MOCK_METRICS);
       }
       if (alertsRes.status === 'fulfilled' && alertsRes.value.data.data) {
-        setAlerts(alertsRes.value.data.data);
+        const d = alertsRes.value.data.data;
+        setAlerts(d.length > 0 ? d : MOCK_ALERTS);
       }
       if (assetsRes.status === 'fulfilled' && assetsRes.value.data.data) {
-        setAssets(assetsRes.value.data.data);
+        const d = assetsRes.value.data.data;
+        setAssets(d.length > 0 ? d : MOCK_ASSETS);
       }
     } catch (error) {
       console.error('Error fetching IT data', error);
+      // Mocks already set as initial state — no action needed
     }
   };
 

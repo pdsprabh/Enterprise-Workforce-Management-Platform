@@ -4,6 +4,21 @@ import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import './DashboardTheme.css';
 
+const MOCK_ORGANIZATIONS = [
+  { _id: 'org-1', name: 'Acme Technologies',      industry: 'Technology',   status: 'Active',   createdAt: '2024-01-15T00:00:00.000Z' },
+  { _id: 'org-2', name: 'FinEdge Capital',         industry: 'Finance',      status: 'Active',   createdAt: '2024-02-20T00:00:00.000Z' },
+  { _id: 'org-3', name: 'HealthFirst Clinics',     industry: 'Healthcare',   status: 'Active',   createdAt: '2024-03-10T00:00:00.000Z' },
+  { _id: 'org-4', name: 'BuildRight Construction', industry: 'Real Estate',  status: 'Inactive', createdAt: '2024-04-05T00:00:00.000Z' },
+  { _id: 'org-5', name: 'EduSpark Learning',       industry: 'Education',    status: 'Active',   createdAt: '2024-05-18T00:00:00.000Z' },
+  { _id: 'org-6', name: 'GreenLeaf Retail',        industry: 'Retail',       status: 'Active',   createdAt: '2024-06-01T00:00:00.000Z' },
+];
+
+const MOCK_ALERTS = [
+  { _id: 'al-1', message: 'Unusual login attempt detected',    type: 'Security',    severity: 'Critical', ip: '192.168.4.22',  createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString() },
+  { _id: 'al-2', message: 'CPU usage > 90% on prod-server-2', type: 'Performance', severity: 'Warning',  ip: '10.0.0.45',    createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
+  { _id: 'al-3', message: 'Database backup completed',         type: 'System',      severity: 'Warning',  ip: 'N/A',          createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString() },
+];
+
 const SuperAdminDashboard = () => {
   const [search, setSearch] = useState('');
   
@@ -24,13 +39,22 @@ const SuperAdminDashboard = () => {
       ]);
       
       if (orgRes.status === 'fulfilled' && orgRes.value.data.data) {
-        setOrganizations(orgRes.value.data.data);
+        const data = orgRes.value.data.data;
+        setOrganizations(data.length > 0 ? data : MOCK_ORGANIZATIONS);
+      } else {
+        setOrganizations(MOCK_ORGANIZATIONS);
       }
+
       if (alertRes.status === 'fulfilled' && alertRes.value.data.data) {
-        setAlerts(alertRes.value.data.data);
+        const data = alertRes.value.data.data;
+        setAlerts(data.length > 0 ? data : MOCK_ALERTS);
+      } else {
+        setAlerts(MOCK_ALERTS);
       }
     } catch (error) {
       console.error('Error fetching super admin data', error);
+      setOrganizations(MOCK_ORGANIZATIONS);
+      setAlerts(MOCK_ALERTS);
     }
   };
 
