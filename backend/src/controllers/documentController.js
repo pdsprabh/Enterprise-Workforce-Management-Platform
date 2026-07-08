@@ -194,10 +194,21 @@ exports.getMyDocuments = async (req, res) => {
         }
         
         const query = { 
-            $or: [
-                { owner: employee._id },
-                { owner: { $exists: false } },
-                { owner: null }
+            $and: [
+                {
+                    $or: [
+                        { owner: employee._id },
+                        { owner: { $exists: false } },
+                        { owner: null }
+                    ]
+                },
+                {
+                    $or: [
+                        { allowedRoles: { $exists: false } },
+                        { allowedRoles: { $size: 0 } },
+                        { allowedRoles: req.user.role }
+                    ]
+                }
             ]
         };
         const docs = await Document.find(query)

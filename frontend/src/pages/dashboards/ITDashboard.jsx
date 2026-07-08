@@ -3,6 +3,10 @@ import { Activity, Ticket, Monitor, Shield, Search, X } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './DashboardTheme.css';
+import ClockAction from '../../components/attendance/ClockAction';
+import CreateTicketModal from '../../components/helpdesk/CreateTicketModal';
+import { useToast } from '../../components/ui/Toast';
+import Button from '../../components/ui/Button';
 
 const MOCK_METRICS = { uptime: '99.97%', activeServers: 12, avgLatency: '38ms' };
 const MOCK_ASSETS = [
@@ -32,6 +36,18 @@ const ITDashboard = () => {
   
   const [metricData, setMetricData] = useState({ uptime: '', activeServers: '', avgLatency: '' });
   const [alertData, setAlertData] = useState({ type: 'Security', message: '', severity: 'Warning', ip: '' });
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { addToast } = useToast();
+
+  const handleNewTicket = async (ticketData) => {
+    try {
+      await axiosInstance.post('/helpdesk', ticketData);
+      addToast({ type: 'success', message: 'Ticket created successfully!' });
+      setShowCreateModal(false);
+    } catch (err) {
+      addToast({ type: 'error', message: err.response?.data?.message || 'Failed to create ticket' });
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -103,9 +119,11 @@ const ITDashboard = () => {
       <div className="dashboard-main">
         <header className="dashboard-header">
           <h1>IT Operations Center</h1>
-          <div style={{display: 'flex', gap: '10px'}}>
-            <button className="primary-action" onClick={() => { setMetricData(metrics); setShowMetricsModal(true); }}>Manage Metrics</button>
-            <button className="primary-action" onClick={() => setShowAlertModal(true)}>Log Alert</button>
+          <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+            <Button variant="secondary" onClick={() => setShowCreateModal(true)}>Raise Ticket</Button>
+            <Button variant="primary" onClick={() => { setMetricData(metrics); setShowMetricsModal(true); }}>Manage Metrics</Button>
+            <Button variant="primary" onClick={() => setShowAlertModal(true)}>Log Alert</Button>
+            <ClockAction />
           </div>
         </header>
         <div className="dashboard-grid">
@@ -288,6 +306,12 @@ const ITDashboard = () => {
           </div>
         </div>
       )}
+
+      <CreateTicketModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleNewTicket}
+      />
     </div>
   );
 };

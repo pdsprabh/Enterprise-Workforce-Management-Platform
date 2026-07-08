@@ -3,7 +3,22 @@ const Employee = require('../models/Employee');
 
 // Helper: get the logged-in employee from req.user
 const getEmployeeFromUser = async (userId) => {
-    return await Employee.findOne({ user: userId });
+    let employee = await Employee.findOne({ user: userId });
+    if (!employee) {
+        const User = require('../models/User');
+        const user = await User.findById(userId);
+        if (user) {
+            employee = await Employee.create({
+                user: user._id,
+                name: user.name,
+                email: user.email,
+                mobile: user.mobile,
+                joiningDate: new Date(),
+                status: 'Active'
+            });
+        }
+    }
+    return employee;
 };
 
 // @desc    Clock in for today

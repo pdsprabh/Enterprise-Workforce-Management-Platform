@@ -26,6 +26,7 @@ const EMPTY_FORM = {
   serialNumber: '',
   status:       'Available',
   purchaseDate: '',
+  assignedTo:   '',
 };
 
 // ── Summary card ───────────────────────────────────────────────────
@@ -47,30 +48,38 @@ export default function AssetsPage() {
   const canManage      = user?.role === 'Super Admin' || user?.role === 'IT Administrator';
 
   const [assets,      setAssets]      = useState([]);
+  const [employees,   setEmployees]   = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [search,      setSearch]      = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
 
-  // Modal
+  // Modal & Form State
   const [showModal,   setShowModal]   = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [assetToEdit, setAssetToEdit] = useState(null);
+  const [assetToDelete, setAssetToDelete] = useState(null);
   const [form,        setForm]        = useState(EMPTY_FORM);
   const [formErrors,  setFormErrors]  = useState({});
   const [submitting,  setSubmitting]  = useState(false);
 
   // ── Fetch ────────────────────────────────────────────────────────
-  const fetchAssets = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get('/assets');
-      setAssets(res.data.data || []);
+      const [assetsRes, empRes] = await Promise.all([
+        api.get('/assets'),
+        api.get('/employees')
+      ]);
+      setAssets(assetsRes.data.data || []);
+      setEmployees(empRes.data.data || []);
     } catch (err) {
-      addToast({ type: 'error', message: 'Failed to load assets' });
+      addToast({ type: 'error', message: 'Failed to load assets data' });
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetchAssets(); }, [fetchAssets]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   // ── Derived data ─────────────────────────────────────────────────
   const filtered = assets.filter(a => {
@@ -111,13 +120,57 @@ export default function AssetsPage() {
     try {
       const payload = { ...form };
       if (!payload.purchaseDate) delete payload.purchaseDate;
+      if (!payload.assignedTo) delete payload.assignedTo;
 
-      const res = await api.post('/assets', payload);
-      setAssets(prev => [res.data.data, ...prev]);
-      addToast({ type: 'success', message: `Asset "${form.assetName}" added successfully!` });
+      // Smart status update logic based on assignment
+      if (payload.assignedTo && payload.status === 'Available') {
+         payload.status = 'Assigned';
+      } else if (!payload.assignedTo && payload.status === 'Assigned') {
+         payload.status = 'Available';
+      }
+
+      if (assetToEdit) {
+        const res = await api.put(`/assets/${assetToEdit._id}`, payload);
+        setAssets(prev => prev.map(a => a._id === res.data.data._id ? res.data.data : a));
+        addToast({ type: 'success', message: `Asset "${form.assetName}" updated successfully!` });
+      } else {
+        const res = await api.post('/assets', payload);
+        setAssets(prev => [res.data.data, ...prev]);
+        addToast({ type: 'success', message: `Asset "${form.assetName}" added successfully!` });
+      }
       closeModal();
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to add asset';
+      const msg = err.response?.data?.message || (assetToEdit ? 'Failed to update asset' : 'Failed to add asset');
+      addToast({ type: 'error', message: msg });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function handleEdit(asset) {
+    setAssetToEdit(asset);
+    setForm({
+      assetName: asset.assetName || '',
+      assetType: asset.assetType || 'Laptop',
+      serialNumber: asset.serialNumber || '',
+      status: asset.status || 'Available',
+      purchaseDate: asset.purchaseDate ? asset.purchaseDate.split('T')[0] : '',
+      assignedTo: asset.assignedTo?._id || '',
+    });
+    setShowModal(true);
+  }
+
+  async function handleDeleteConfirm() {
+    if (!assetToDelete) return;
+    setSubmitting(true);
+    try {
+      await api.delete(`/assets/${assetToDelete._id}`);
+      setAssets(prev => prev.filter(a => a._id !== assetToDelete._id));
+      addToast({ type: 'success', message: 'Asset deleted successfully.' });
+      setShowDeleteModal(false);
+      setAssetToDelete(null);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to delete asset.';
       addToast({ type: 'error', message: msg });
     } finally {
       setSubmitting(false);
@@ -126,6 +179,7 @@ export default function AssetsPage() {
 
   function closeModal() {
     setShowModal(false);
+    setAssetToEdit(null);
     setForm(EMPTY_FORM);
     setFormErrors({});
   }
@@ -198,6 +252,7 @@ export default function AssetsPage() {
                 <th>Assigned To</th>
                 <th>Status</th>
                 <th>Purchase Date</th>
+                {canManage && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -213,6 +268,14 @@ export default function AssetsPage() {
                     </Badge>
                   </td>
                   <td>{asset.purchaseDate ? formatDate(asset.purchaseDate) : '—'}</td>
+                  {canManage && (
+                    <td>
+                      <div className="flex gap-2">
+                        <Button variant="secondary" size="sm" onClick={() => handleEdit(asset)}>Edit</Button>
+                        <Button variant="danger" size="sm" onClick={() => { setAssetToDelete(asset); setShowDeleteModal(true); }}>Delete</Button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -220,8 +283,8 @@ export default function AssetsPage() {
         )}
       </div>
 
-      {/* Add Asset Modal */}
-      <Modal isOpen={showModal} onClose={closeModal} title="Add New Asset">
+      {/* Add/Edit Asset Modal */}
+      <Modal isOpen={showModal} onClose={closeModal} title={assetToEdit ? "Edit Asset" : "Add New Asset"}>
         <form onSubmit={handleSubmit} className="asset-form" noValidate>
           <div className="asset-form__grid">
             {/* Asset Name */}
@@ -282,6 +345,17 @@ export default function AssetsPage() {
                 onChange={handleChange}
               />
             </div>
+            
+            {/* Assigned To */}
+            <div className="asset-form__field">
+              <label htmlFor="af-assigned" className="asset-form__label">Assigned To</label>
+              <select id="af-assigned" name="assignedTo" className="asset-form__select" value={form.assignedTo} onChange={handleChange}>
+                <option value="">-- Unassigned --</option>
+                {employees.map(emp => (
+                  <option key={emp._id} value={emp._id}>{emp.name} ({emp.designation})</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="asset-form__actions">
@@ -289,10 +363,27 @@ export default function AssetsPage() {
               Cancel
             </Button>
             <Button type="submit" variant="primary" loading={submitting}>
-              {submitting ? 'Adding…' : 'Add Asset'}
+              {submitting ? 'Saving…' : (assetToEdit ? 'Save Changes' : 'Add Asset')}
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Asset">
+        <div className="p-4">
+          <p className="text-slate-600 dark:text-slate-400 mb-6">
+            Are you sure you want to delete the asset <strong>{assetToDelete?.assetName}</strong>? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" onClick={() => setShowDeleteModal(false)} disabled={submitting}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDeleteConfirm} loading={submitting}>
+              {submitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

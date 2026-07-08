@@ -4,8 +4,9 @@ import Card, { CardHeader, CardBody } from '../../components/ui/Card';
 import Avatar from '../../components/ui/Avatar';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import { getEmployeeById } from '../../api/employeeApi';
+import { getEmployeeById, resetEmployeePassword, unlockEmployeeAccount } from '../../api/employeeApi';
 import { formatDate } from '../../utils/formatters';
+import { useAuth } from '../../context/AuthContext';
 
 export default function EmployeeDetailPage() {
   const { id } = useParams();
@@ -13,6 +14,10 @@ export default function EmployeeDetailPage() {
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('personal');
+  const { user: currentUser } = useAuth();
+  
+  const [processingSecurityAction, setProcessingSecurityAction] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     async function fetchEmployee() {
@@ -60,6 +65,39 @@ export default function EmployeeDetailPage() {
     { id: 'attendance', label: 'Attendance' },
   ];
 
+  const handleUnlockAccount = async () => {
+    if (!window.confirm(`Are you sure you want to unlock ${employee.name}'s account?`)) return;
+    setProcessingSecurityAction(true);
+    try {
+      const res = await unlockEmployeeAccount(employee._id);
+      if (res.success) {
+        setToastMessage('Account unlocked successfully.');
+        setTimeout(() => setToastMessage(''), 3000);
+      }
+    } catch (err) {
+      alert('Error unlocking account');
+    } finally {
+      setProcessingSecurityAction(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!window.confirm(`Are you sure you want to reset ${employee.name}'s password? A temporary password will be generated and emailed.`)) return;
+    setProcessingSecurityAction(true);
+    try {
+      const res = await resetEmployeePassword(employee._id);
+      if (res.success) {
+        setToastMessage(res.message);
+        setTimeout(() => setToastMessage(''), 5000);
+      }
+    } catch (err) {
+      alert('Error resetting password');
+    } finally {
+      setProcessingSecurityAction(false);
+    }
+  };
+
+
   return (
     <div className="page-container">
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
@@ -101,6 +139,33 @@ export default function EmployeeDetailPage() {
               </div>
             </CardBody>
           </Card>
+
+          {/* Security Actions - Only for IT Admin and Super Admin */}
+          {(currentUser?.role === 'IT Administrator' || currentUser?.role === 'Super Admin') && (
+            <Card style={{ marginTop: '24px' }}>
+              <CardHeader>
+                <h3 style={{ fontSize: '16px', margin: 0 }}>Security Actions</h3>
+              </CardHeader>
+              <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Button 
+                  variant="outline" 
+                  onClick={handleUnlockAccount}
+                  disabled={processingSecurityAction}
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  {processingSecurityAction ? 'Processing...' : 'Unlock Account'}
+                </Button>
+                <Button 
+                  variant="danger" 
+                  onClick={handleResetPassword}
+                  disabled={processingSecurityAction}
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  {processingSecurityAction ? 'Processing...' : 'Reset Password'}
+                </Button>
+              </CardBody>
+            </Card>
+          )}
         </div>
 
         {/* Profile Content */}
@@ -173,6 +238,18 @@ export default function EmployeeDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed', bottom: '24px', right: '24px',
+          background: toastMessage.includes('failed') ? 'var(--color-warning)' : 'var(--color-success)', color: toastMessage.includes('failed') ? 'var(--color-text-primary)' : 'white', padding: '12px 24px',
+          borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', zIndex: 1000,
+          fontWeight: 500
+        }}>
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }

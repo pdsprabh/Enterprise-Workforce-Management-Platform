@@ -25,13 +25,13 @@ const HelpDeskTicketSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Open', 'In Progress', 'Resolved', 'Closed'],
-        default: 'Open'
+        enum: ['Open', 'In Progress', 'Resolved', 'Closed', 'open', 'in_progress', 'resolved', 'closed'],
+        default: 'open'
     },
     priority: {
         type: String,
-        enum: ['Low', 'Medium', 'High', 'Critical'],
-        default: 'Medium'
+        enum: ['Low', 'Medium', 'High', 'Critical', 'low', 'medium', 'high', 'urgent'],
+        default: 'medium'
     }
 }, { timestamps: true });
 

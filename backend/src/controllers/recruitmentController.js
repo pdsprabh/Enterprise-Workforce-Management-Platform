@@ -28,19 +28,27 @@ exports.uploadResume = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Candidate not found' });
         }
 
-        // upload buffer to cloudinary
-        const uploadResult = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                { resource_type: 'raw', folder: 'resumes' },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
-            );
-            stream.end(req.file.buffer);
-        });
+        // Check if Cloudinary is configured
+        const isCloudinaryConfigured = process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_KEY !== 'your_cloudinary_api_key';
 
-        candidate.resumeUrl = uploadResult.secure_url;
+        if (isCloudinaryConfigured) {
+            // upload buffer to cloudinary
+            const uploadResult = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { resource_type: 'raw', folder: 'resumes' },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+            candidate.resumeUrl = uploadResult.secure_url;
+        } else {
+            // Fallback for local development when keys are not set
+            candidate.resumeUrl = `http://localhost:5000/mock-resumes/${req.file.originalname}`;
+        }
+
         await candidate.save();
 
         res.status(200).json({ success: true, data: candidate });
@@ -128,7 +136,7 @@ exports.scheduleInterview = async (req, res) => {
 exports.updateCandidateStatus = async (req, res) => {
     try {
         const { status } = req.body;
-        const validStatuses = ['applied', 'shortlisted', 'interview-scheduled', 'rejected', 'hired'];
+        const validStatuses = ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected', 'shortlisted', 'interview-scheduled'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ success: false, message: 'Invalid status' });
         }

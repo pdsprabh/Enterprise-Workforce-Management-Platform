@@ -6,13 +6,11 @@ import Button from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import './DashboardTheme.css';
+import ClockAction from '../../components/attendance/ClockAction';
+import CreateTicketModal from '../../components/helpdesk/CreateTicketModal';
 
 const EmployeeDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ticketSubject, setTicketSubject] = useState('');
-  const [ticketCategory, setTicketCategory] = useState('it');
-  const [ticketDescription, setTicketDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { addToast } = useToast();
   // Compatibility shim so existing showToast('msg', 'type') calls work
   const showToast = (message, type = 'info') => addToast({ type, message });
@@ -20,17 +18,19 @@ const EmployeeDashboard = () => {
   const [leaveBalance, setLeaveBalance] = useState(0);
   const [recentTickets, setRecentTickets] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [attendance, setAttendance] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [leaveRes, ticketsRes, projectsRes, attendanceRes] = await Promise.allSettled([
+        const [leaveRes, ticketsRes, projectsRes, attendanceRes, jobsRes] = await Promise.allSettled([
           api.get('/leaves/balance'),   // backend mounted at /api/leaves (not /api/leave)
           api.get('/helpdesk'),
           api.get('/projects'),
-          api.get('/attendance/me')
+          api.get('/attendance/me'),
+          api.get('/recruitment/jobs')
         ]);
         
         if (leaveRes.status === 'fulfilled') {
@@ -53,6 +53,11 @@ const EmployeeDashboard = () => {
             setAttendance(atts[0]); // get latest
           }
         }
+
+        if (jobsRes.status === 'fulfilled') {
+          const activeJobs = (jobsRes.value.data?.data || []).filter(j => j.status === 'active');
+          setJobs(activeJobs.slice(0, 3));
+        }
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
       } finally {
@@ -62,25 +67,11 @@ const EmployeeDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const handleTicketSubmit = async () => {
-    if (!ticketSubject || !ticketDescription) {
-      showToast('Please fill in all fields', 'error');
-      return;
-    }
-    
-    setIsSubmitting(true);
+  const handleTicketSubmit = async (ticketData) => {
     try {
-      await api.post('/helpdesk', {
-        title: ticketSubject,
-        category: ticketCategory,
-        description: ticketDescription
-      });
+      await api.post('/helpdesk', ticketData);
       showToast('Ticket submitted successfully', 'success');
       setIsModalOpen(false);
-      // Reset form
-      setTicketSubject('');
-      setTicketCategory('it');
-      setTicketDescription('');
       
       // Refresh tickets list
       const ticketsRes = await api.get('/helpdesk');
@@ -89,8 +80,6 @@ const EmployeeDashboard = () => {
       
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to submit ticket', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -101,9 +90,7 @@ const EmployeeDashboard = () => {
           <h1>Welcome back!</h1>
           <div className="header-controls">
             <Button variant="secondary" onClick={() => setIsModalOpen(true)}>Raise Ticket</Button>
-            <Link to="/attendance" style={{ textDecoration: 'none' }}>
-              <Button variant="primary">Clock In</Button>
-            </Link>
+            <ClockAction />
           </div>
         </header>
         <div className="dashboard-grid">
@@ -185,54 +172,48 @@ const EmployeeDashboard = () => {
             )}
           </div>
 
+          {/* Latest Job Openings */}
+          <div className="dashboard-card" style={{ gridColumn: 'span 2' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Briefcase size={20} className="text-pink-400" />
+                <h3 style={{ margin: 0 }}>Latest Job Openings</h3>
+              </div>
+              <Link to="/jobs" style={{ fontSize: '14px', color: '#6366f1', textDecoration: 'none' }}>View All</Link>
+            </div>
+            {isLoading ? (
+               <p style={{ color: 'var(--color-text-secondary)' }}>Loading...</p>
+            ) : jobs.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {jobs.map(job => (
+                  <div key={job._id || job.id} style={{ padding: '12px', backgroundColor: 'var(--color-surface-hover)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 4px 0', color: 'var(--color-text-primary)' }}>{job.title}</h4>
+                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+                          {job.department} • {job.location}
+                        </p>
+                      </div>
+                      <Link to="/jobs" style={{ textDecoration: 'none' }}>
+                        <Button variant="secondary" style={{ padding: '4px 12px', fontSize: '12px' }}>Apply</Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: 'var(--color-text-secondary)' }}>No active job openings.</p>
+            )}
+          </div>
+
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="kinetic-modal">
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px'}}>
-              <h2 style={{margin: 0}}>Raise Support Ticket</h2>
-              <X size={24} style={{cursor: 'pointer'}} onClick={() => setIsModalOpen(false)} />
-            </div>
-            <div className="form-group">
-              <label>Subject</label>
-              <input 
-                type="text" 
-                className="kinetic-input" 
-                placeholder="E.g., VPN Access Issue" 
-                value={ticketSubject}
-                onChange={(e) => setTicketSubject(e.target.value)}
-              />
-            </div>
-            <div className="form-group">
-              <label>Category</label>
-              <select className="kinetic-input" value={ticketCategory} onChange={(e) => setTicketCategory(e.target.value)} style={{ width: '100%', marginBottom: '16px' }}>
-                <option value="it">IT Support</option>
-                <option value="hr">HR Inquiry</option>
-                <option value="facilities">Facilities</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Description</label>
-              <textarea 
-                className="kinetic-input" 
-                rows="4" 
-                placeholder="Describe the issue..."
-                value={ticketDescription}
-                onChange={(e) => setTicketDescription(e.target.value)}
-                style={{ width: '100%' }}
-              ></textarea>
-            </div>
-            <div className="modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px' }}>
-              <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>Cancel</Button>
-              <Button variant="primary" onClick={handleTicketSubmit} disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Submit Ticket'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CreateTicketModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleTicketSubmit}
+      />
     </div>
   );
 };

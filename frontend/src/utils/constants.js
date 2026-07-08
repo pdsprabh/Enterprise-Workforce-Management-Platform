@@ -307,8 +307,9 @@ export const NAV_SECTIONS = [
     title: 'People',
     items: [
       { label: 'Employees', path: '/employees', icon: 'users', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager', 'IT Administrator'], description: 'Manage your workforce directory and profiles.', imagePath: '/features/directory_feature.png' },
-      { label: 'Attendance', path: '/attendance', icon: 'clock', allowedRoles: ['All'], description: 'Track time and attendance records.', imagePath: '/features/attendance_feature.png' },
-      { label: 'Leave', path: '/leave', icon: 'calendar', allowedRoles: ['All'], description: 'Manage time-off requests and balances.', imagePath: '/features/leave_feature.png' },
+      { label: 'Attendance', path: '/attendance', icon: 'clock', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager', 'Employee'], description: 'Track time and attendance records.', imagePath: '/features/attendance_feature.png' },
+      { label: 'Leave', path: '/leave', icon: 'calendar', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager', 'Employee'], description: 'Manage time-off requests and balances.', imagePath: '/features/leave_feature.png' },
+      { label: 'Job Openings', path: '/jobs', icon: 'briefcase', allowedRoles: ['Super Admin', 'Organization Admin', 'HR Manager', 'Employee'], description: 'View and apply for internal job openings.', imagePath: '/features/recruitment_feature.png' },
       { label: 'Recruitment', path: '/recruitment', icon: 'user-plus', allowedRoles: ['Super Admin', 'HR Manager'], description: 'Source, track, and hire top talent.', imagePath: '/features/recruitment_feature.png' },
     ],
   },

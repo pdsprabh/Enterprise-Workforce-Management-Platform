@@ -3,6 +3,10 @@ import { AlertTriangle, Search, X } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import './DashboardTheme.css';
+import ClockAction from '../../components/attendance/ClockAction';
+import CreateTicketModal from '../../components/helpdesk/CreateTicketModal';
+import { useToast } from '../../components/ui/Toast';
+import Button from '../../components/ui/Button';
 
 const MOCK_ORGANIZATIONS = [
   { _id: 'org-1', name: 'Acme Technologies',      industry: 'Technology',   status: 'Active',   createdAt: '2024-01-15T00:00:00.000Z' },
@@ -28,6 +32,18 @@ const SuperAdminDashboard = () => {
   const [orgData, setOrgData] = useState({ name: '', industry: 'Technology', status: 'Active' });
   const [createError, setCreateError] = useState('');
   const [creating, setCreating] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { addToast } = useToast();
+
+  const handleNewTicket = async (ticketData) => {
+    try {
+      await axiosInstance.post('/helpdesk', ticketData);
+      addToast({ type: 'success', message: 'Ticket created successfully!' });
+      setShowCreateModal(false);
+    } catch (err) {
+      addToast({ type: 'error', message: err.response?.data?.message || 'Failed to create ticket' });
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -92,7 +108,11 @@ const SuperAdminDashboard = () => {
       <div className="dashboard-main">
         <header className="dashboard-header">
           <h1>Platform Administration</h1>
-          <button className="primary-action" onClick={() => setShowOrgModal(true)}>Onboard New Tenant</button>
+          <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Button variant="secondary" onClick={() => setShowCreateModal(true)}>Raise Ticket</Button>
+            <button className="primary-action" onClick={() => setShowOrgModal(true)}>Onboard New Tenant</button>
+            <ClockAction />
+          </div>
         </header>
         <div className="dashboard-grid">
           <div className="dashboard-card summary-card glow-blue">
@@ -296,6 +316,12 @@ const SuperAdminDashboard = () => {
           </div>
         </div>
       )}
+
+      <CreateTicketModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleNewTicket}
+      />
     </div>
   );
 };

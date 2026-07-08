@@ -33,6 +33,13 @@ const EMPTY_FORM = {
   status: 'active',
 };
 
+const EMPTY_CANDIDATE_FORM = {
+  name: '',
+  email: '',
+  mobile: '',
+  positionAppliedFor: '',
+};
+
 export default function RecruitmentPage() {
   const [activeTab, setActiveTab] = useState('positions');
   const [candidates, setCandidates] = useState([]);
@@ -44,6 +51,13 @@ export default function RecruitmentPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+
+  // Add Candidate modal state
+  const [showCandidateModal, setShowCandidateModal] = useState(false);
+  const [candidateForm, setCandidateForm] = useState(EMPTY_CANDIDATE_FORM);
+  const [candidateFormErrors, setCandidateFormErrors] = useState({});
+  const [candidateResume, setCandidateResume] = useState(null);
+  const [candidateSubmitting, setCandidateSubmitting] = useState(false);
 
   const { addToast } = useToast();
 
@@ -126,11 +140,74 @@ export default function RecruitmentPage() {
     setFormErrors({});
   }
 
+  // ── Add Candidate form helpers ────────────────────────────────────
+  function handleCandidateFormChange(e) {
+    const { name, value } = e.target;
+    setCandidateForm(prev => ({ ...prev, [name]: value }));
+    if (candidateFormErrors[name]) setCandidateFormErrors(prev => ({ ...prev, [name]: '' }));
+  }
+
+  function validateCandidateForm() {
+    const errors = {};
+    if (!candidateForm.name.trim()) errors.name = 'Name is required';
+    if (!candidateForm.email.trim()) errors.email = 'Email is required';
+    if (!candidateForm.positionAppliedFor) errors.positionAppliedFor = 'Position is required';
+    return errors;
+  }
+
+  async function handleAddCandidate(e) {
+    e.preventDefault();
+    const errors = validateCandidateForm();
+    if (Object.keys(errors).length) {
+      setCandidateFormErrors(errors);
+      return;
+    }
+
+    setCandidateSubmitting(true);
+    try {
+      // 1. Create Candidate
+      const res = await api.post('/recruitment/candidates', candidateForm);
+      const newCandidate = res.data.data;
+      
+      // 2. Upload Resume if exists
+      if (candidateResume) {
+        const formData = new FormData();
+        formData.append('resume', candidateResume);
+        await api.post(`/recruitment/candidates/${newCandidate._id}/resume`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        newCandidate.resumeUrl = 'uploaded'; // Just a mock indicator for UI
+      }
+
+      const mappedCandidate = {
+        ...newCandidate,
+        id: newCandidate._id,
+        stage: 'applied'
+      };
+
+      setCandidates(prev => [mappedCandidate, ...prev]);
+      addToast({ type: 'success', message: 'Candidate added successfully!' });
+      handleCloseCandidateModal();
+      setActiveTab('pipeline');
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to add candidate. Please try again.';
+      addToast({ type: 'error', message: msg });
+    } finally {
+      setCandidateSubmitting(false);
+    }
+  }
+
+  function handleCloseCandidateModal() {
+    setShowCandidateModal(false);
+    setCandidateForm(EMPTY_CANDIDATE_FORM);
+    setCandidateFormErrors({});
+    setCandidateResume(null);
+  }
+
   // ── Candidate actions ──────────────────────────────────────────────
   async function handleAdvance(candidateId, newStage) {
     try {
-      let status = newStage.toLowerCase().replace('_', '-');
-      if (status === 'interview') status = 'interview-scheduled';
+      const status = newStage;
       await api.put(`/recruitment/candidates/${candidateId}/status`, { status });
       setCandidates(prev =>
         prev.map(c => (c.id === candidateId ? { ...c, stage: newStage } : c))
@@ -165,9 +242,14 @@ export default function RecruitmentPage() {
       {/* ── Header ── */}
       <div className="recruitment-page__header">
         <h1 className="recruitment-page__title">Recruitment</h1>
-        <Button variant="primary" onClick={() => setShowModal(true)}>
-          + Post Job
-        </Button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <Button variant="secondary" onClick={() => setShowCandidateModal(true)}>
+            + Add Candidate
+          </Button>
+          <Button variant="primary" onClick={() => setShowModal(true)}>
+            + Post Job
+          </Button>
+        </div>
       </div>
 
       {/* ── Tabs ── */}
@@ -294,6 +376,89 @@ export default function RecruitmentPage() {
             </Button>
             <Button type="submit" variant="primary" loading={submitting}>
               {submitting ? 'Posting…' : 'Post Job'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* ── Add Candidate Modal ── */}
+      <Modal isOpen={showCandidateModal} onClose={handleCloseCandidateModal} title="Add Candidate">
+        <form onSubmit={handleAddCandidate} className="post-job-form" noValidate>
+          <div className="post-job-form__grid">
+            <div className="post-job-form__field post-job-form__field--full">
+              <label className="post-job-form__label">
+                Name <span className="post-job-form__required">*</span>
+              </label>
+              <Input
+                name="name"
+                placeholder="Candidate Full Name"
+                value={candidateForm.name}
+                onChange={handleCandidateFormChange}
+              />
+              {candidateFormErrors.name && <p className="post-job-form__error">{candidateFormErrors.name}</p>}
+            </div>
+
+            <div className="post-job-form__field">
+              <label className="post-job-form__label">
+                Email <span className="post-job-form__required">*</span>
+              </label>
+              <Input
+                name="email"
+                type="email"
+                placeholder="candidate@example.com"
+                value={candidateForm.email}
+                onChange={handleCandidateFormChange}
+              />
+              {candidateFormErrors.email && <p className="post-job-form__error">{candidateFormErrors.email}</p>}
+            </div>
+
+            <div className="post-job-form__field">
+              <label className="post-job-form__label">Mobile</label>
+              <Input
+                name="mobile"
+                placeholder="+1 234 567 890"
+                value={candidateForm.mobile}
+                onChange={handleCandidateFormChange}
+              />
+            </div>
+
+            <div className="post-job-form__field post-job-form__field--full">
+              <label className="post-job-form__label">
+                Position Applied For <span className="post-job-form__required">*</span>
+              </label>
+              <select
+                name="positionAppliedFor"
+                className="post-job-form__select"
+                value={candidateForm.positionAppliedFor}
+                onChange={handleCandidateFormChange}
+              >
+                <option value="">Select a job position...</option>
+                {activeJobs.map(job => (
+                  <option key={job._id || job.id} value={job.title}>{job.title}</option>
+                ))}
+              </select>
+              {candidateFormErrors.positionAppliedFor && <p className="post-job-form__error">{candidateFormErrors.positionAppliedFor}</p>}
+            </div>
+
+            <div className="post-job-form__field post-job-form__field--full">
+              <label className="post-job-form__label">
+                Resume (PDF/DOC)
+              </label>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => setCandidateResume(e.target.files[0])}
+                className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-800 dark:file:text-indigo-400"
+              />
+            </div>
+          </div>
+
+          <div className="post-job-form__actions">
+            <Button type="button" variant="secondary" onClick={handleCloseCandidateModal} disabled={candidateSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" loading={candidateSubmitting}>
+              {candidateSubmitting ? 'Adding...' : 'Add Candidate'}
             </Button>
           </div>
         </form>

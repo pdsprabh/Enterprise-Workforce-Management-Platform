@@ -24,3 +24,13 @@ export async function deleteEmployee(id) {
   const { data } = await axiosInstance.delete(`/employees/${id}`);
   return data;
 }
+
+export async function resetEmployeePassword(id) {
+  const { data } = await axiosInstance.post(`/employees/${id}/reset-password`);
+  return data;
+}
+
+export async function unlockEmployeeAccount(id) {
+  const { data } = await axiosInstance.post(`/employees/${id}/unlock-account`);
+  return data;
+}

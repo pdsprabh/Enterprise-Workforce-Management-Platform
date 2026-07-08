@@ -43,14 +43,12 @@ export default function AttendancePage() {
       const data = res.data.data || [];
       setRecords(data);
 
-      // Check if there's a record for today with a clockIn but no clockOut
-      const t = new Date();
-      t.setHours(0, 0, 0, 0);
-      const todayRecord = data.find(r => new Date(r.date).getTime() === t.getTime());
+      // Find any record that has a clockIn but no clockOut
+      const activeRecord = data.find(r => r.clockIn && !r.clockOut);
       
-      if (todayRecord && todayRecord.clockIn && !todayRecord.clockOut) {
+      if (activeRecord) {
         setIsClockedIn(true);
-        setClockInTime(new Date(todayRecord.clockIn));
+        setClockInTime(new Date(activeRecord.clockIn));
       } else {
         setIsClockedIn(false);
         setClockInTime(null);

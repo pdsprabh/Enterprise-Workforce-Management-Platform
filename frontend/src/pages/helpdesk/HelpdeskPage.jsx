@@ -86,6 +86,16 @@ export default function HelpdeskPage() {
     }
   }
 
+  async function handleStatusChange(ticketId, newStatus) {
+    try {
+      await api.put(`/helpdesk/${ticketId}/status`, { status: newStatus });
+      showToast('Ticket status updated successfully!', 'success');
+      fetchTickets(); // Refresh list to reflect updated counts and status
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to update ticket status', 'error');
+    }
+  }
+
   return (
     <div className="helpdesk-page">
       <div className="helpdesk-page__header">
@@ -136,7 +146,11 @@ export default function HelpdeskPage() {
           <div className="helpdesk-empty">No tickets match this filter.</div>
         ) : (
           filteredTickets.map((ticket) => (
-            <TicketCard key={ticket.id} ticket={ticket} />
+            <TicketCard 
+              key={ticket.id} 
+              ticket={ticket} 
+              onStatusChange={handleStatusChange} 
+            />
           ))
         )}
       </div>

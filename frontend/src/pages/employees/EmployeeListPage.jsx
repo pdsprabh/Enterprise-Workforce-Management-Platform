@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 import Card, { CardHeader, CardBody } from '../../components/ui/Card';
 import DataTable from '../../components/ui/DataTable';
 import Badge from '../../components/ui/Badge';
@@ -18,6 +19,9 @@ export default function EmployeeListPage() {
 
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { user } = useContext(AuthContext);
+  const canAddEmployee = ['Super Admin', 'Organization Admin', 'HR Manager'].includes(user?.role);
 
   // Fetch employees — use useEffect, not useMemo, for side effects
   useEffect(() => {
@@ -124,10 +128,12 @@ export default function EmployeeListPage() {
             Manage your organization's workforce
           </p>
         </div>
-        <Button onClick={() => navigate('/employees/add')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16, marginRight: 8 }}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          Add Employee
-        </Button>
+        {canAddEmployee && (
+          <Button onClick={() => navigate('/employees/add')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16, marginRight: 8 }}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Employee
+          </Button>
+        )}
       </div>
 
       <Card>

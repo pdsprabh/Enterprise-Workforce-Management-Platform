@@ -1,7 +1,16 @@
 import Badge from '../ui/Badge';
 import { formatDate } from '../../utils/formatters';
-import { DOCUMENT_TYPE_LABELS } from '../../utils/constants';
 import './Documents.css';
+
+const DOCUMENT_TYPE_LABELS = {
+  'Offer Letter': 'Offer Letter',
+  'Contract': 'Contract',
+  'Payslip': 'Payslip',
+  'ID Proof': 'ID Proof',
+  'Policy': 'Policy',
+  'Certificate': 'Certificate',
+  'Other': 'Other'
+};
 
 const FILE_ICONS = {
   pdf: '📄',

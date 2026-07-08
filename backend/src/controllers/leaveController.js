@@ -89,6 +89,30 @@ exports.updateLeaveStatus = async (req, res) => {
     }
 };
 
+exports.cancelLeave = async (req, res) => {
+    try {
+        const leave = await Leave.findById(req.params.id);
+        if (!leave) {
+            return res.status(404).json({ success: false, message: 'Leave request not found' });
+        }
+
+        const employee = await getEmployeeFromUser(req.user._id);
+        if (!employee || leave.employee.toString() !== employee._id.toString()) {
+            return res.status(403).json({ success: false, message: 'Not authorized to cancel this leave' });
+        }
+
+        if (leave.status !== 'pending') {
+            return res.status(400).json({ success: false, message: 'Only pending leaves can be cancelled' });
+        }
+
+        leave.status = 'cancelled';
+        await leave.save();
+        res.status(200).json({ success: true, data: leave });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 exports.getLeaveBalance = async (req, res) => {
     try {
         const employee = await getEmployeeFromUser(req.user._id);

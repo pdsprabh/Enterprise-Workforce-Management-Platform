@@ -18,9 +18,9 @@ exports.getTickets = async (req, res) => {
         if (req.user.role === 'Employee') {
             query.raisedBy = req.user._id; // only see their own tickets
         } else if (req.user.role === 'IT Administrator') {
-            query.category = 'it'; // IT sees IT tickets
+            query.$or = [{ category: 'it' }, { raisedBy: req.user._id }];
         } else if (req.user.role === 'HR Manager') {
-            query.category = 'hr'; // HR sees HR tickets
+            query.$or = [{ category: 'hr' }, { raisedBy: req.user._id }];
         }
         // Super Admin and Org Admin will have an empty query (see all)
 
@@ -30,6 +30,33 @@ exports.getTickets = async (req, res) => {
             .sort({ createdAt: -1 }); // newest first
             
         res.status(200).json({ success: true, count: tickets.length, data: tickets });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.updateTicketStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).json({ success: false, message: 'Status is required' });
+        }
+
+        const ticket = await HelpDeskTicket.findById(id);
+
+        if (!ticket) {
+            return res.status(404).json({ success: false, message: 'Ticket not found' });
+        }
+
+        // Additional RBAC: HR Manager should ideally only close HR tickets, IT for IT etc.
+        // For now, if they reached here, they are authorized.
+        
+        ticket.status = status;
+        await ticket.save();
+
+        res.status(200).json({ success: true, data: ticket });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

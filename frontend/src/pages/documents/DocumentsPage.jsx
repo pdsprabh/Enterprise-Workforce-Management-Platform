@@ -3,7 +3,15 @@ import TabNav from '../../components/ui/TabNav';
 import Button from '../../components/ui/Button';
 import SearchBar from '../../components/ui/SearchBar';
 import DocumentRow from '../../components/documents/DocumentRow';
-import { DOCUMENT_TYPES } from '../../utils/constants';
+const DOCUMENT_TYPES = {
+  OFFER_LETTER: 'Offer Letter',
+  CONTRACT: 'Contract',
+  PAYSLIP: 'Payslip',
+  ID_PROOF: 'ID Proof',
+  POLICY: 'Policy',
+  CERTIFICATE: 'Certificate',
+  OTHER: 'Other'
+};
 import { useToast } from '../../components/ui/Toast';
 import api from '../../api/axiosInstance';
 import { deleteDocument } from '../../api/documentApi';
@@ -34,10 +42,12 @@ export default function DocumentsPage() {
         const mappedDocs = data.map(d => ({
           ...d,
           id: d._id,
-          name: d.title, // Mapping title to name for component
+          name: d.documentName || 'Untitled Document', // Fix: map from documentName
           size: '1 MB', // Dummy size until backend handles it
-          uploadDate: d.createdAt,
-          type: d.type || DOCUMENT_TYPES.OTHER
+          uploadedDate: d.createdAt, // Fix: map to uploadedDate as expected by DocumentRow
+          uploadedBy: d.uploadedBy ? d.uploadedBy.name : 'System',
+          type: d.docType || DOCUMENT_TYPES.OTHER, // Fix: map from docType
+          url: d.url
         }));
         setDocuments(mappedDocs);
       } catch (err) {
@@ -57,7 +67,18 @@ export default function DocumentsPage() {
   }, [documents, activeTab, search]);
 
   function handleDownload(doc) {
+    if (!doc.url) {
+      addToast({ type: 'error', message: `No file URL found for "${doc.name}"` });
+      return;
+    }
     addToast({ type: 'info', message: `Downloading "${doc.name}"…` });
+    const link = document.createElement('a');
+    link.href = doc.url;
+    link.target = '_blank';
+    link.download = doc.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   async function handleDelete(id) {

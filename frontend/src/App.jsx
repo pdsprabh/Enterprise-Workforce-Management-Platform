@@ -34,6 +34,7 @@ import LeavePage from './pages/leave/LeavePage';
 import PayrollPage from './pages/payroll/PayrollPage';
 import PerformancePage from './pages/performance/PerformancePage';
 import RecruitmentPage from './pages/recruitment/RecruitmentPage';
+import InternalJobBoard from './pages/recruitment/InternalJobBoard';
 
 // Day 5
 import ProjectsPage from './pages/projects/ProjectsPage';
@@ -106,6 +107,9 @@ function App() {
                     <Route element={<RoleRoute allowedRoles={['Super Admin', 'HR Manager']} />}>
                       <Route path="/recruitment" element={<RecruitmentPage />} />
                     </Route>
+                    
+                    {/* Internal Job Board (All roles) */}
+                    <Route path="/jobs" element={<InternalJobBoard />} />
 
                     {/* Day 5 */}
                     <Route element={<RoleRoute allowedRoles={['Super Admin', 'Organization Admin', 'IT Administrator', 'HR Manager']} />}>
@@ -127,7 +131,7 @@ function App() {
                     <Route path="/settings" element={<SettingsPage />} />
 
                     {/* Restricted Assets Route */}
-                    <Route element={<RoleRoute allowedRoles={['Super Admin', 'IT Administrator', 'Employee']} />}>
+                    <Route element={<RoleRoute allowedRoles={['Super Admin', 'IT Administrator']} />}>
                       <Route path="/assets" element={<AssetsPage />} />
                     </Route>
                   </Route>
