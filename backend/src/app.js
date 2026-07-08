@@ -25,11 +25,6 @@ const { initSocket } = require('./socket/socketManager');
 
 dotenv.config();
 
-// Connect to database if not in test environment
-if (process.env.NODE_ENV !== 'test') {
-    connectDB();
-}
-
 const app = express();
 
 app.use(cors());
