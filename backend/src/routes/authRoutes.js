@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, refreshToken, logout, getMe } = require('../controllers/authController');
+const { login, register, refreshToken, logout, getMe, googleLogin, microsoftLogin } = require('../controllers/authController');
 const { validateLogin, validateRegistration } = require('../middleware/validate');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.post('/login', validateLogin, login);
+router.post('/google', googleLogin);
+router.post('/microsoft', microsoftLogin);
 router.post('/refresh', refreshToken);
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);

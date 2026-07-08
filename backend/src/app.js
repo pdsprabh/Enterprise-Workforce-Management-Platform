@@ -6,13 +6,11 @@ const http = require('http');
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
-const departmentRoutes = require('./routes/departmentRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const payrollRoutes = require('./routes/payrollRoutes');
 const assetRoutes = require('./routes/assetRoutes');
 const helpdeskRoutes = require('./routes/helpdeskRoutes');
 const documentRoutes = require('./routes/documentRoutes');
-const designationRoutes = require('./routes/designationRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
 const recruitmentRoutes = require('./routes/recruitmentRoutes');
@@ -37,8 +35,6 @@ const systemRoutes = require('./routes/systemRoutes');
 // Mount routers
 app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
-app.use('/api/departments', departmentRoutes);
-app.use('/api/designations', designationRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/assets', assetRoutes);

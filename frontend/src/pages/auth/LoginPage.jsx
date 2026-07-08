@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { useToast } from '../../components/ui/Toast';
 import './LoginPage.css';
+
+import ReCAPTCHA from 'react-google-recaptcha';
+import { useGoogleLogin } from '@react-oauth/google';
+import { useMsal } from '@azure/msal-react';
 
 /* ── Magnetic Input ───────────────────────────────────────── */
 function MagneticInput({ label, ...props }) {
@@ -61,12 +65,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+
+  const recaptchaRef = useRef(null);
+  const { instance } = useMsal();
 
   /* Mouse-tracking glow for the left panel */
   const [glow, setGlow] = useState({ x: 0, y: 0 });
   const [glowing, setGlowing] = useState(false);
 
-  const { login } = useAuth();
+  const { login, loginWithGoogle, loginWithMicrosoft } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -75,15 +83,50 @@ export default function LoginPage() {
     setGlow({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   }
 
+  const handleGoogleSuccess = async (tokenResponse) => {
+    try {
+      setLoading(true);
+      await loginWithGoogle(tokenResponse.access_token);
+      addToast({ type: 'success', message: 'Google Login successful' });
+      navigate('/dashboard');
+    } catch (err) {
+      addToast({ type: 'error', message: err.response?.data?.message || 'Google Auth Failed' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginGoogle = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+  });
+
+  const handleMicrosoftLogin = async () => {
+    try {
+      setLoading(true);
+      const loginResponse = await instance.loginPopup({ scopes: ["user.read"] });
+      await loginWithMicrosoft(loginResponse.accessToken);
+      addToast({ type: 'success', message: 'Microsoft Login successful' });
+      navigate('/dashboard');
+    } catch (err) {
+      addToast({ type: 'error', message: err.message || 'Microsoft Auth Failed' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!email || !password) {
       addToast({ type: 'error', message: 'Please fill in all fields' });
       return;
     }
+    if (!recaptchaToken) {
+      addToast({ type: 'error', message: 'Please complete the reCAPTCHA' });
+      return;
+    }
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, recaptchaToken);
       addToast({ type: 'success', message: 'Login successful' });
       navigate('/dashboard');
     } catch (err) {
@@ -91,6 +134,8 @@ export default function LoginPage() {
         type: 'error',
         message: err.response?.data?.message || 'Invalid credentials',
       });
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -128,26 +173,23 @@ export default function LoginPage() {
 
             {/* Social icons */}
             <div className="login-socials">
-              {/* LinkedIn */}
-              <SocialBtn href="#" label="Sign in with LinkedIn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M6.94 5a2 2 0 1 1-4-.002A2 2 0 0 1 6.94 5M7 8.48H3V21h4zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-4 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.72-2.91z" />
-                </svg>
-              </SocialBtn>
+              <button type="button" onClick={() => loginGoogle()} className="login-social-btn" aria-label="Sign in with Google">
+                <span className="login-social-btn__shimmer" />
+                <span className="login-social-btn__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+                  </svg>
+                </span>
+              </button>
 
-              {/* Instagram */}
-              <SocialBtn href="#" label="Sign in with Instagram">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10A5 5 0 0 1 12 7m0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
-                </svg>
-              </SocialBtn>
-
-              {/* Facebook */}
-              <SocialBtn href="#" label="Sign in with Facebook">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9.198 21.5h4v-8.01h3.604l.396-3.98h-4V7.5a1 1 0 0 1 1-1h3v-4h-3a5 5 0 0 0-5 5v2.01h-2l-.396 3.98h2.396z" />
-                </svg>
-              </SocialBtn>
+              <button type="button" onClick={handleMicrosoftLogin} className="login-social-btn" aria-label="Sign in with Microsoft">
+                <span className="login-social-btn__shimmer" />
+                <span className="login-social-btn__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z" />
+                  </svg>
+                </span>
+              </button>
             </div>
 
             <p className="login-divider-text">or use your account</p>
@@ -179,6 +221,15 @@ export default function LoginPage() {
                 <Link to="/forgot-password" className="login-forgot">
                   Forgot password?
                 </Link>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'}
+                  onChange={(token) => setRecaptchaToken(token)}
+                  theme="dark"
+                />
               </div>
 
               <button type="submit" className="login-submit-btn" disabled={loading}>

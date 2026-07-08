@@ -41,8 +41,8 @@ export default function AuthProvider({ children }) {
     loadUser();
   }, [token]);
 
-  const login = useCallback(async (email, password) => {
-    const data = await authApi.login(email, password);
+  const login = useCallback(async (email, password, recaptchaToken) => {
+    const data = await authApi.login(email, password, recaptchaToken);
     const authToken = data.token;
     const authUser = data.user;
     localStorage.setItem('token', authToken);
@@ -54,6 +54,28 @@ export default function AuthProvider({ children }) {
 
   const register = useCallback(async (userData) => {
     const data = await authApi.register(userData);
+    const authToken = data.token;
+    const authUser = data.user;
+    localStorage.setItem('token', authToken);
+    localStorage.setItem('user', JSON.stringify(authUser));
+    setToken(authToken);
+    setUser(authUser);
+    return data;
+  }, []);
+
+  const loginWithGoogle = useCallback(async (googleToken) => {
+    const data = await authApi.loginWithGoogle(googleToken);
+    const authToken = data.token;
+    const authUser = data.user;
+    localStorage.setItem('token', authToken);
+    localStorage.setItem('user', JSON.stringify(authUser));
+    setToken(authToken);
+    setUser(authUser);
+    return data;
+  }, []);
+
+  const loginWithMicrosoft = useCallback(async (msToken) => {
+    const data = await authApi.loginWithMicrosoft(msToken);
     const authToken = data.token;
     const authUser = data.user;
     localStorage.setItem('token', authToken);
@@ -81,6 +103,8 @@ export default function AuthProvider({ children }) {
     isAuthenticated,
     isLoading,
     login,
+    loginWithGoogle,
+    loginWithMicrosoft,
     register,
     logout,
   };

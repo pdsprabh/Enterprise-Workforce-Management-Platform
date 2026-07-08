@@ -6,8 +6,18 @@ import axiosInstance from './axiosInstance';
  * @param {string} password
  * @returns {Promise<{token: string, user: object}>}
  */
-export async function login(email, password) {
-  const { data } = await axiosInstance.post('/auth/login', { email, password });
+export async function login(email, password, recaptchaToken) {
+  const { data } = await axiosInstance.post('/auth/login', { email, password, recaptchaToken });
+  return data;
+}
+
+export async function loginWithGoogle(token) {
+  const { data } = await axiosInstance.post('/auth/google', { token });
+  return data;
+}
+
+export async function loginWithMicrosoft(token) {
+  const { data } = await axiosInstance.post('/auth/microsoft', { token });
   return data;
 }
 

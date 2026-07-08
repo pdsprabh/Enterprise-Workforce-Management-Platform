@@ -1,5 +1,8 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Helper to generate JWT Token
 const generateToken = (id) => {
@@ -20,7 +23,17 @@ const generateRefreshToken = (id) => {
 // @access  Public
 exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, recaptchaToken } = req.body;
+
+        // Verify reCAPTCHA
+        if (recaptchaToken) {
+            const recaptchaRes = await axios.post(
+                `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`
+            );
+            if (!recaptchaRes.data.success) {
+                return res.status(400).json({ success: false, message: 'Invalid reCAPTCHA' });
+            }
+        }
 
         // Check for user
         const user = await User.findOne({ email }).select('+password');
@@ -186,5 +199,105 @@ exports.getMe = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Google Login
+// @route   POST /api/auth/google
+// @access  Public
+exports.googleLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        
+        let user = await User.findOne({ email: payload.email });
+        if (!user) {
+            user = await User.create({
+                name: payload.name,
+                email: payload.email,
+                googleId: payload.sub,
+                role: 'Employee'
+            });
+            const Employee = require('../models/Employee');
+            await Employee.create({
+                user: user._id,
+                name: user.name,
+                email: user.email,
+                joiningDate: new Date(),
+                status: 'Active'
+            });
+        } else if (!user.googleId) {
+            user.googleId = payload.sub;
+            await user.save({ validateBeforeSave: false });
+        }
+
+        const authToken = generateToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        res.status(200).json({
+            success: true,
+            token: authToken,
+            refreshToken,
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, mobile: user.mobile }
+        });
+    } catch (error) {
+        res.status(400).json({ success: false, message: 'Google Auth Failed' });
+    }
+};
+
+// @desc    Microsoft Login
+// @route   POST /api/auth/microsoft
+// @access  Public
+exports.microsoftLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+        // Verify MS token with Graph API
+        const msRes = await axios.get('https://graph.microsoft.com/v1.0/me', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const payload = msRes.data;
+        const email = payload.userPrincipalName || payload.mail;
+        
+        let user = await User.findOne({ email });
+        if (!user) {
+            user = await User.create({
+                name: payload.displayName,
+                email: email,
+                microsoftId: payload.id,
+                role: 'Employee'
+            });
+            const Employee = require('../models/Employee');
+            await Employee.create({
+                user: user._id,
+                name: user.name,
+                email: user.email,
+                joiningDate: new Date(),
+                status: 'Active'
+            });
+        } else if (!user.microsoftId) {
+            user.microsoftId = payload.id;
+            await user.save({ validateBeforeSave: false });
+        }
+
+        const authToken = generateToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        res.status(200).json({
+            success: true,
+            token: authToken,
+            refreshToken,
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, mobile: user.mobile }
+        });
+    } catch (error) {
+        res.status(400).json({ success: false, message: 'Microsoft Auth Failed' });
     }
 };
