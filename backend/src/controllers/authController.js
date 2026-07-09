@@ -208,11 +208,10 @@ exports.getMe = async (req, res) => {
 exports.googleLogin = async (req, res) => {
     try {
         const { token } = req.body;
-        const ticket = await googleClient.verifyIdToken({
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID
+        const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${token}` }
         });
-        const payload = ticket.getPayload();
+        const payload = response.data;
         
         let user = await User.findOne({ email: payload.email });
         if (!user) {
@@ -247,7 +246,77 @@ exports.googleLogin = async (req, res) => {
             user: { id: user._id, name: user.name, email: user.email, role: user.role, mobile: user.mobile }
         });
     } catch (error) {
+        console.error('Google Auth Error:', error);
         res.status(400).json({ success: false, message: 'Google Auth Failed' });
+    }
+};
+
+// @desc    LinkedIn Login
+// @route   POST /api/auth/linkedin
+// @access  Public
+exports.linkedinLogin = async (req, res) => {
+    try {
+        const { code, redirectUri } = req.body;
+
+        // 1. Exchange code for access token
+        const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
+            params: {
+                grant_type: 'authorization_code',
+                code,
+                client_id: process.env.LINKEDIN_CLIENT_ID,
+                client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+                redirect_uri: redirectUri
+            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        const accessToken = tokenResponse.data.access_token;
+
+        // 2. Fetch user info
+        const userResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        const payload = userResponse.data;
+
+        // 3. Find or create user
+        let user = await User.findOne({ email: payload.email });
+        if (!user) {
+            user = await User.create({
+                name: payload.name,
+                email: payload.email,
+                linkedinId: payload.sub,
+                role: 'Employee'
+            });
+            const Employee = require('../models/Employee');
+            await Employee.create({
+                user: user._id,
+                name: user.name,
+                email: user.email,
+                joiningDate: new Date(),
+                status: 'Active'
+            });
+        } else if (!user.linkedinId) {
+            user.linkedinId = payload.sub;
+            await user.save({ validateBeforeSave: false });
+        }
+
+        // 4. Generate tokens
+        const authToken = generateToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        res.status(200).json({
+            success: true,
+            token: authToken,
+            refreshToken,
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, mobile: user.mobile }
+        });
+
+    } catch (error) {
+        console.error('LinkedIn Auth Error:', error.response?.data || error.message);
+        res.status(400).json({ success: false, message: 'LinkedIn Auth Failed' });
     }
 };
 

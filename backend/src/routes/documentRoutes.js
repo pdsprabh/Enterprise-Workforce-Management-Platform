@@ -23,27 +23,27 @@ router.get(
     getDocumentStats
 );
 
-// Super Admin – cross-tenant list + upload
+// Super Admin & Org Admin – cross-tenant list + upload
 router.route('/')
     .get(
         authorize('Super Admin', 'Organization Admin', 'HR Manager', 'IT Administrator', 'Employee'),
         getAllDocuments
     )
     .post(
-        authorize('Super Admin', 'HR Manager', 'Employee'),
+        authorize('Super Admin', 'Organization Admin', 'HR Manager'),
         upload.single('file'),
         createDocument
     );
 
-// Super Admin – update / delete by ID
+// Update / delete by ID
 router.route('/:id')
     .put(
-        authorize('Super Admin'),
+        authorize('Super Admin', 'Organization Admin', 'HR Manager'),
         upload.single('file'),
         updateDocument
     )
     .delete(
-        authorize('Super Admin'),
+        authorize('Super Admin', 'Organization Admin', 'HR Manager'),
         deleteDocument
     );
 

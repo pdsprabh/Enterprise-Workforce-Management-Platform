@@ -10,7 +10,7 @@ import './Attendance.css';
  * @param {(notes: string) => void} onClockOut
  * @param {boolean} loading
  */
-export default function ClockCard({ isClockedIn, clockInTime, onClockIn, onClockOut, loading }) {
+export default function ClockCard({ isClockedIn, isClockedOutToday, clockInTime, onClockIn, onClockOut, loading }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [elapsed, setElapsed] = useState(0); // seconds since clock-in
   const [notes, setNotes] = useState('');
@@ -59,7 +59,8 @@ export default function ClockCard({ isClockedIn, clockInTime, onClockIn, onClock
     hour12: true,
   });
 
-  const statusText = isClockedIn ? 'Working' : 'Not Started';
+  let statusText = isClockedIn ? 'Working' : 'Not Started';
+  if (isClockedOutToday) statusText = 'Clocked Out';
 
   return (
     <div className="clock-card">
@@ -84,15 +85,16 @@ export default function ClockCard({ isClockedIn, clockInTime, onClockIn, onClock
         placeholder={isClockedIn ? 'Notes before clocking out (optional)…' : 'Notes (optional)…'}
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
+        disabled={isClockedOutToday}
       />
 
       <button
         className={`clock-card__btn ${isClockedIn ? 'clock-card__btn--out' : 'clock-card__btn--in'}`}
         onClick={handleAction}
-        disabled={loading}
-        aria-label={isClockedIn ? 'Clock Out' : 'Clock In'}
+        disabled={loading || isClockedOutToday}
+        aria-label={isClockedOutToday ? 'Clocked Out Today' : (isClockedIn ? 'Clock Out' : 'Clock In')}
       >
-        {loading ? 'Please wait…' : isClockedIn ? 'Clock Out' : 'Clock In'}
+        {isClockedOutToday ? 'Clocked Out Today' : (loading ? 'Please wait…' : isClockedIn ? 'Clock Out' : 'Clock In')}
       </button>
     </div>
   );

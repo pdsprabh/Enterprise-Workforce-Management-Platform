@@ -85,6 +85,17 @@ export default function AuthProvider({ children }) {
     return data;
   }, []);
 
+  const loginWithLinkedIn = useCallback(async (code) => {
+    const data = await authApi.loginWithLinkedIn(code);
+    const authToken = data.token;
+    const authUser = data.user;
+    localStorage.setItem('token', authToken);
+    localStorage.setItem('user', JSON.stringify(authUser));
+    setToken(authToken);
+    setUser(authUser);
+    return data;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -105,6 +116,7 @@ export default function AuthProvider({ children }) {
     login,
     loginWithGoogle,
     loginWithMicrosoft,
+    loginWithLinkedIn,
     register,
     logout,
   };

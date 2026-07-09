@@ -3,6 +3,7 @@ import TabNav from '../../components/ui/TabNav';
 import KanbanBoard from '../../components/ui/KanbanBoard';
 import JobCard from '../../components/recruitment/JobCard';
 import CandidateCard from '../../components/recruitment/CandidateCard';
+import AIAnalysisModal from '../../components/recruitment/AIAnalysisModal';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
@@ -58,6 +59,10 @@ export default function RecruitmentPage() {
   const [candidateFormErrors, setCandidateFormErrors] = useState({});
   const [candidateResume, setCandidateResume] = useState(null);
   const [candidateSubmitting, setCandidateSubmitting] = useState(false);
+
+  // AI Modal state
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [selectedAICandidate, setSelectedAICandidate] = useState(null);
 
   const { addToast } = useToast();
 
@@ -173,10 +178,10 @@ export default function RecruitmentPage() {
       if (candidateResume) {
         const formData = new FormData();
         formData.append('resume', candidateResume);
-        await api.post(`/recruitment/candidates/${newCandidate._id}/resume`, formData, {
+        const uploadRes = await api.post(`/recruitment/candidates/${newCandidate._id}/resume`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        newCandidate.resumeUrl = 'uploaded'; // Just a mock indicator for UI
+        newCandidate.resumeUrl = uploadRes.data.data.resumeUrl; // Use actual Cloudinary URL
       }
 
       const mappedCandidate = {
@@ -204,7 +209,37 @@ export default function RecruitmentPage() {
     setCandidateResume(null);
   }
 
+  const [analyzingIds, setAnalyzingIds] = useState([]); // Track loading state for AI Analyze
+
   // ── Candidate actions ──────────────────────────────────────────────
+  async function handleAnalyzeCandidate(candidate) {
+    if (candidate.aiAnalysis?.overallScore) {
+      // Already analyzed, just show modal
+      setSelectedAICandidate(candidate);
+      setShowAIModal(true);
+      return;
+    }
+
+    const candidateId = candidate._id || candidate.id;
+    setAnalyzingIds(prev => [...prev, candidateId]);
+
+    try {
+      // Call analyze endpoint
+      addToast({ type: 'info', message: 'Analyzing candidate profile...' });
+      const res = await api.post(`/recruitment/candidates/${candidateId}/analyze`);
+      const updatedCandidate = { ...res.data.data, id: res.data.data._id };
+      
+      setCandidates(prev => prev.map(c => c.id === updatedCandidate.id ? updatedCandidate : c));
+      setSelectedAICandidate(updatedCandidate);
+      setShowAIModal(true);
+    } catch (error) {
+      console.error('Failed to analyze candidate:', error);
+      addToast({ type: 'error', message: 'AI Analysis failed. Please try again.' });
+    } finally {
+      setAnalyzingIds(prev => prev.filter(id => id !== candidateId));
+    }
+  }
+
   async function handleAdvance(candidateId, newStage) {
     try {
       const status = newStage;
@@ -280,6 +315,8 @@ export default function RecruitmentPage() {
                   candidate={candidate}
                   onAdvance={handleAdvance}
                   onReject={handleReject}
+                  onAnalyze={handleAnalyzeCandidate}
+                  isAnalyzing={analyzingIds.includes(candidate.id || candidate._id)}
                 />
               )}
             />
@@ -463,6 +500,13 @@ export default function RecruitmentPage() {
           </div>
         </form>
       </Modal>
+
+      {/* ── AI Analysis Modal ── */}
+      <AIAnalysisModal 
+        isOpen={showAIModal} 
+        onClose={() => setShowAIModal(false)} 
+        candidate={selectedAICandidate} 
+      />
     </div>
   );
 }

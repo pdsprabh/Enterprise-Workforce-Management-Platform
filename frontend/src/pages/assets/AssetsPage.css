@@ -1,6 +1,6 @@
 .assets-page {
   padding: 24px;
-  max-width: 1300px;
+  margin: 0 auto;
 }
 
 /* ── Header ── */
@@ -70,7 +70,7 @@
   position: relative;
   flex: 1;
   min-width: 240px;
-  max-width: 400px;
+  margin: 0 auto;
 }
 
 .assets-filters__search-icon {

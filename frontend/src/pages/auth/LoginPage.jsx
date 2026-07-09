@@ -10,18 +10,21 @@ import { useMsal } from '@azure/msal-react';
 
 /* ── Magnetic Input ───────────────────────────────────────── */
 function MagneticInput({ label, ...props }) {
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [hovering, setHovering] = useState(false);
+  const innerRef = useRef(null);
 
   function handleMouseMove(e) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    if (!innerRef.current) return;
+    const rect = innerRef.current.getBoundingClientRect();
+    innerRef.current.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+    innerRef.current.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
   }
 
   return (
     <div className="login-input-wrap">
       {label && <label className="login-input-label">{label}</label>}
       <div
+        ref={innerRef}
         className="login-input-inner"
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setHovering(true)}
@@ -34,13 +37,13 @@ function MagneticInput({ label, ...props }) {
             <div
               className="login-input-beam login-input-beam--top"
               style={{
-                background: `radial-gradient(30px circle at ${mouse.x}px 0px, #c7d1db 0%, transparent 70%)`,
+                background: `radial-gradient(30px circle at var(--mouse-x, 0px) 0px, #c7d1db 0%, transparent 70%)`,
               }}
             />
             <div
               className="login-input-beam login-input-beam--bottom"
               style={{
-                background: `radial-gradient(30px circle at ${mouse.x}px 2px, #c7d1db 0%, transparent 70%)`,
+                background: `radial-gradient(30px circle at var(--mouse-x, 0px) 2px, #c7d1db 0%, transparent 70%)`,
               }}
             />
           </>
@@ -62,25 +65,27 @@ function SocialBtn({ href, children, label }) {
 
 /* ── Main Login Page ──────────────────────────────────────── */
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(localStorage.getItem('rememberedEmail') || '');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe') === 'true');
 
   const recaptchaRef = useRef(null);
   const { instance } = useMsal();
 
-  /* Mouse-tracking glow for the left panel */
-  const [glow, setGlow] = useState({ x: 0, y: 0 });
   const [glowing, setGlowing] = useState(false);
+  const leftPanelRef = useRef(null);
 
   const { login, loginWithGoogle, loginWithMicrosoft } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
   function handlePanelMove(e) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setGlow({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    if (!leftPanelRef.current) return;
+    const rect = leftPanelRef.current.getBoundingClientRect();
+    leftPanelRef.current.style.setProperty('--glow-x', `${e.clientX - rect.left}px`);
+    leftPanelRef.current.style.setProperty('--glow-y', `${e.clientY - rect.top}px`);
   }
 
   const handleGoogleSuccess = async (tokenResponse) => {
@@ -127,6 +132,16 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password, recaptchaToken);
+      
+      // Handle "Remember me"
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberedEmail');
+        localStorage.setItem('rememberMe', 'false');
+      }
+
       addToast({ type: 'success', message: 'Login successful' });
       navigate('/dashboard');
     } catch (err) {
@@ -150,6 +165,7 @@ export default function LoginPage() {
 
         {/* ── Left: Form panel ── */}
         <div
+          ref={leftPanelRef}
           className="login-left"
           onMouseMove={handlePanelMove}
           onMouseEnter={() => setGlowing(true)}
@@ -158,7 +174,7 @@ export default function LoginPage() {
           {/* Radial glow blob */}
           <div
             className={`login-glow${glowing ? ' login-glow--visible' : ''}`}
-            style={{ transform: `translate(${glow.x - 250}px, ${glow.y - 250}px)` }}
+            style={{ transform: `translate(calc(var(--glow-x, 0px) - 250px), calc(var(--glow-y, 0px) - 250px))` }}
           />
 
           <div className="login-form-wrap">
@@ -215,7 +231,11 @@ export default function LoginPage() {
 
               <div className="login-form__row">
                 <label className="login-remember">
-                  <input type="checkbox" />
+                  <input 
+                    type="checkbox" 
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
                   <span>Remember me</span>
                 </label>
                 <Link to="/forgot-password" className="login-forgot">
@@ -226,7 +246,7 @@ export default function LoginPage() {
               <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
                 <ReCAPTCHA
                   ref={recaptchaRef}
-                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'}
+                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LdkQ0stAAAAAMuk4p4hbrsF-2dM5Cm95Nq39D_i'}
                   onChange={(token) => setRecaptchaToken(token)}
                   theme="dark"
                 />

@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './components/ui/Toast';
 import NotificationProvider from './context/NotificationContext';
 import useAuth from './hooks/useAuth';
+import { LinkedInCallback } from 'react-linkedin-login-oauth2';
 
 import ProtectedRoute from './routes/ProtectedRoute';
 import PublicRoute from './routes/PublicRoute';
@@ -139,6 +140,7 @@ function App() {
 
                 {/* ── Landing Page & Redirects ── */}
                 <Route path="/" element={<LandingPage />} />
+                <Route path="/linkedin" element={<LinkedInCallback />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </BrowserRouter>

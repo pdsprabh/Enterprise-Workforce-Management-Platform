@@ -72,12 +72,22 @@ exports.createDocument = async (req, res) => {
 
         const cloudinaryResult = await uploadPromise;
 
+        let finalOrgId = organizationId || null;
+        if (req.user.role !== 'Super Admin') {
+            const Employee = require('../models/Employee');
+            const employee = await Employee.findOne({ user: req.user._id });
+            if (!employee) {
+                return res.status(404).json({ success: false, message: 'Employee profile not found' });
+            }
+            finalOrgId = employee.organization;
+        }
+
         const doc = await Document.create({
             documentName,
             docType,
             url: cloudinaryResult.secure_url,
             cloudinaryPublicId: cloudinaryResult.public_id,
-            organization: organizationId || null,
+            organization: finalOrgId,
             allowedRoles: allowedRoles ? JSON.parse(allowedRoles) : [],
             uploadedBy: req.user.id
         });
@@ -106,10 +116,20 @@ exports.updateDocument = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Document not found' });
         }
 
+        if (req.user.role !== 'Super Admin') {
+            const Employee = require('../models/Employee');
+            const employee = await Employee.findOne({ user: req.user._id });
+            if (!employee || !doc.organization || doc.organization.toString() !== employee.organization.toString()) {
+                return res.status(403).json({ success: false, message: 'Not authorized to update this document' });
+            }
+        }
+
         // Update metadata
         if (documentName) doc.documentName = documentName;
         if (docType) doc.docType = docType;
-        if (organizationId !== undefined) doc.organization = organizationId || null;
+        if (req.user.role === 'Super Admin' && organizationId !== undefined) {
+            doc.organization = organizationId || null;
+        }
         if (allowedRoles !== undefined) doc.allowedRoles = JSON.parse(allowedRoles);
         doc.updatedBy = req.user.id;
 
@@ -165,6 +185,14 @@ exports.deleteDocument = async (req, res) => {
 
         if (!doc) {
             return res.status(404).json({ success: false, message: 'Document not found' });
+        }
+
+        if (req.user.role !== 'Super Admin') {
+            const Employee = require('../models/Employee');
+            const employee = await Employee.findOne({ user: req.user._id });
+            if (!employee || !doc.organization || doc.organization.toString() !== employee.organization.toString()) {
+                return res.status(403).json({ success: false, message: 'Not authorized to delete this document' });
+            }
         }
 
         // Delete from Cloudinary (best-effort)

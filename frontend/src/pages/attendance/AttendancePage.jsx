@@ -30,6 +30,7 @@ export default function AttendancePage() {
   // Clock-in state
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState(null);
+  const [isClockedOutToday, setIsClockedOutToday] = useState(false);
   const [clockLoading, setClockLoading] = useState(false);
   const { addToast } = useToast();
 
@@ -43,15 +44,21 @@ export default function AttendancePage() {
       const data = res.data.data || [];
       setRecords(data);
 
-      // Find any record that has a clockIn but no clockOut
-      const activeRecord = data.find(r => r.clockIn && !r.clockOut);
+      // Find today's record
+      const todayRecord = data.find(r => {
+        const d = new Date(r.date);
+        const today = new Date();
+        return d.toDateString() === today.toDateString();
+      });
       
-      if (activeRecord) {
+      if (todayRecord && todayRecord.clockIn && !todayRecord.clockOut) {
         setIsClockedIn(true);
-        setClockInTime(new Date(activeRecord.clockIn));
+        setClockInTime(new Date(todayRecord.clockIn));
+        setIsClockedOutToday(false);
       } else {
         setIsClockedIn(false);
         setClockInTime(null);
+        setIsClockedOutToday(!!(todayRecord && todayRecord.clockOut));
       }
     } catch (err) {
       console.error(err);
@@ -182,6 +189,7 @@ export default function AttendancePage() {
       <div className="attendance-page__top">
         <ClockCard
           isClockedIn={isClockedIn}
+          isClockedOutToday={isClockedOutToday}
           clockInTime={clockInTime}
           onClockIn={handleClockIn}
           onClockOut={handleClockOut}

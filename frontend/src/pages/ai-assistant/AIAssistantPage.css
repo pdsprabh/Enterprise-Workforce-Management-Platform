@@ -1,6 +1,6 @@
 .ai-page {
   padding: 0;
-  max-width: 1200px;
+  margin: 0 auto;
   height: calc(100vh - 64px); /* full height minus topbar */
   display: flex;
   flex-direction: column;

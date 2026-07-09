@@ -155,12 +155,12 @@ export default function AdvancedNavbar() {
                             <button
                               onClick={() => navigate(item.path)}
                               onMouseEnter={() => setHoveredFeature(item)}
-                              className="flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50 group"
+                              className="flex flex-col items-center gap-2 rounded-lg p-3 text-center transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50 group"
                             >
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
-                                <Icon className="h-5 w-5" />
+                              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
+                                <Icon className="h-6 w-6" />
                               </div>
-                              <div className="flex flex-col gap-0.5">
+                              <div className="flex flex-col gap-1">
                                 <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                   {item.label}
                                 </span>

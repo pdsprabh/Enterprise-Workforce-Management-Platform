@@ -1,7 +1,7 @@
 /* ── Super Admin Documents Page ─────────────────────────── */
 .sa-docs {
   padding: 24px;
-  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .sa-docs__header {
@@ -140,7 +140,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: 240px;
+  margin: 0 auto;
 }
 
 .sa-docs__doc-icon {
