@@ -1,0 +1,222 @@
+/* ── Clock Card ─────────────────────────────────────── */
+.clock-card {
+  background: linear-gradient(135deg, var(--color-primary, #4f46e5), #7c3aed);
+  border-radius: var(--radius-lg, 12px);
+  padding: 28px 24px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  min-height: 280px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.clock-card__bg-circle {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.clock-card__time {
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-card__status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.clock-card__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #6ee7b7;
+}
+
+.clock-card__dot--pulse {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+  background: #6ee7b7;
+}
+
+.clock-card__dot--idle {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.4); opacity: 0.7; }
+}
+
+.clock-card__timer {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-card__notes {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md, 8px);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.85rem;
+  resize: none;
+  outline: none;
+}
+
+.clock-card__notes::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.clock-card__btn {
+  padding: 12px 32px;
+  border-radius: 9999px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  min-width: 160px;
+}
+
+.clock-card__btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.clock-card__btn--in {
+  background: #fff;
+  color: var(--color-primary, #4f46e5);
+}
+
+.clock-card__btn--out {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* ── Attendance Calendar ─────────────────────────────── */
+.att-calendar {
+  --cell-size: 36px;
+}
+
+.att-calendar__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.att-calendar__nav-btn {
+  background: none;
+  border: 1.5px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 6px);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.att-calendar__nav-btn:hover {
+  border-color: var(--color-primary, #4f46e5);
+  color: var(--color-primary, #4f46e5);
+}
+
+.att-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.att-calendar__day-header {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #9ca3af);
+  padding: 4px 0;
+  text-transform: uppercase;
+}
+
+.att-calendar__cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, transform 0.1s;
+  position: relative;
+}
+
+.att-calendar__cell:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.att-calendar__cell--selected {
+  border-color: var(--color-primary, #4f46e5) !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.att-calendar__cell--empty {
+  cursor: default;
+  background: transparent;
+}
+
+.att-calendar__cell--present   { background: #d1fae5; color: #065f46; }
+.att-calendar__cell--absent    { background: #fee2e2; color: #991b1b; }
+.att-calendar__cell--late      { background: #fef3c7; color: #92400e; }
+.att-calendar__cell--half_day  { background: #dbeafe; color: #1e40af; }
+.att-calendar__cell--holiday   { background: #ede9fe; color: #5b21b6; }
+.att-calendar__cell--weekend   { background: var(--color-bg-secondary, #f9fafb); color: var(--color-text-muted, #9ca3af); cursor: default; }
+.att-calendar__cell--future    { background: transparent; color: var(--color-text-muted, #9ca3af); cursor: default; }
+
+[data-theme='dark'] .att-calendar__cell--present   { background: #064e3b; color: #6ee7b7; }
+[data-theme='dark'] .att-calendar__cell--absent    { background: #7f1d1d; color: #fca5a5; }
+[data-theme='dark'] .att-calendar__cell--late      { background: #78350f; color: #fcd34d; }
+[data-theme='dark'] .att-calendar__cell--half_day  { background: #1e3a8a; color: #93c5fd; }
+[data-theme='dark'] .att-calendar__cell--weekend   { background: var(--color-bg-secondary); color: var(--color-text-muted); }
+
+.att-calendar__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.att-calendar__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.att-calendar__legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}

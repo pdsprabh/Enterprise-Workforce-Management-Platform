@@ -1,0 +1,73 @@
+.performance-page {
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.performance-page__header {
+  margin-bottom: 24px;
+}
+
+.performance-page__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.performance-page__tabs {
+  margin-bottom: 24px;
+}
+
+.performance-page__content {
+  min-height: 200px;
+}
+
+.goals-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.reviews-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feedback-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feedback-card {
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feedback-card__from {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.feedback-card__role {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #9ca3af);
+}
+
+.feedback-card__message {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.feedback-card__date {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}

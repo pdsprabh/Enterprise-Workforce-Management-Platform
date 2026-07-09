@@ -1,0 +1,127 @@
+.payroll-page {
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.payroll-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.payroll-page__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.payroll-page__month-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.payroll-page__month-nav button {
+  background: none;
+  border: 1.5px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 6px);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+}
+
+.payroll-page__month-nav button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.payroll-page__month-label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  min-width: 130px;
+  text-align: center;
+}
+
+/* KPI stat cards */
+.payroll-page__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .payroll-page__stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.payroll-stat {
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  padding: 16px 20px;
+}
+
+.payroll-stat__label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.payroll-stat__value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.payroll-stat--deductions .payroll-stat__value { color: var(--color-danger, #ef4444); }
+.payroll-stat--net        .payroll-stat__value { color: var(--color-success, #10b981); }
+.payroll-stat--tax        .payroll-stat__value { color: var(--color-warning, #f59e0b); }
+
+/* Sections */
+.payroll-page__card {
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.payroll-page__section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+}
+
+/* History table */
+.payslip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.payslip-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.payslip-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-primary);
+}

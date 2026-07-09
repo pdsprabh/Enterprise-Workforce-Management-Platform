@@ -1,0 +1,97 @@
+.recruitment-page {
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.recruitment-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.recruitment-page__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.recruitment-page__tabs {
+  margin-bottom: 24px;
+}
+
+.recruitment-page__content {
+  min-height: 200px;
+}
+
+/* Job postings grid */
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Kanban */
+.recruitment-page__kanban {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+/* ── Post Job Modal Form ─────────────────── */
+.post-job-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.post-job-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.post-job-form__field--full {
+  grid-column: 1 / -1;
+}
+
+.post-job-form__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.post-job-form__required {
+  color: var(--color-danger);
+  margin-left: 2px;
+}
+
+.post-job-form__select {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.post-job-form__select:focus {
+  border-color: var(--color-primary);
+}
+
+.post-job-form__error {
+  font-size: 12px;
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.post-job-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

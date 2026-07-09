@@ -1,0 +1,147 @@
+/* ── Goal Card ───────────────────────────────────────── */
+.goal-card {
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goal-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goal-card__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.goal-card__desc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.goal-card__progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.goal-card__progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--color-border, #e5e7eb);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.goal-card__progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.goal-card__pct {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  min-width: 36px;
+  text-align: right;
+}
+
+.goal-card__due {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #9ca3af);
+  margin: 0;
+}
+
+/* ── Review Card ─────────────────────────────────────── */
+.review-card {
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.review-card__cycle {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.review-card__period {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #9ca3af);
+  margin: 4px 0 0;
+}
+
+.review-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.review-card__reviewer,
+.review-card__date {
+  font-size: 0.83rem;
+  color: var(--color-text-secondary);
+}
+
+.review-card__pending-rating {
+  font-size: 0.83rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.review-card__feedback {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.review-card__feedback--expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.review-card__toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-primary, #4f46e5);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.review-card__toggle:hover {
+  opacity: 0.8;
+}

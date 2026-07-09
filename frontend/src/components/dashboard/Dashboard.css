@@ -1,0 +1,215 @@
+.dashboard-header {
+  margin-bottom: 24px;
+}
+
+.dashboard-header h1 {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.dashboard-header p {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+/* ── StatCard ────────────────────────────── */
+.stat-card__body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.stat-card__label {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--color-text-primary);
+}
+
+.stat-card__change {
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-card__change span {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.text-info { color: var(--color-info); }
+.text-primary { color: var(--color-primary); }
+
+.bg-success-light { background-color: rgba(16, 185, 129, 0.1); }
+.bg-danger-light { background-color: rgba(239, 68, 68, 0.1); }
+.bg-warning-light { background-color: rgba(245, 158, 11, 0.1); }
+.bg-info-light { background-color: rgba(59, 130, 246, 0.1); }
+.bg-primary-light { background-color: rgba(79, 70, 229, 0.1); }
+
+.stat-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ── RecentActivity ──────────────────────── */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  display: flex;
+  gap: 16px;
+}
+
+.activity-item__indicator {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.activity-item__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.activity-item__line {
+  position: absolute;
+  top: 10px;
+  bottom: -16px;
+  width: 2px;
+  background-color: var(--color-border);
+}
+
+.activity-item:last-child .activity-item__line {
+  display: none;
+}
+
+.activity-item__content {
+  flex: 1;
+  padding-bottom: 4px;
+}
+
+.activity-item__action {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.activity-item__desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+}
+
+.activity-item__time {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.bg-success { background-color: var(--color-success); }
+.bg-danger { background-color: var(--color-danger); }
+.bg-warning { background-color: var(--color-warning); }
+.bg-info { background-color: var(--color-info); }
+
+/* ── QuickActions (Dock) ─────────────────── */
+.quick-actions-dock-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* vertical room for the dock to expand upward on hover */
+  min-height: 160px;
+  padding-top: 80px;
+}
+
+/* ── ChartCard ───────────────────────────── */
+.chart-container {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  margin-top: 12px;
+}
+
+.chart-card__section {
+  width: 100%;
+}
+
+.chart-card__legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.chart-card__legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-card__dept-legend {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 16px;
+  margin-top: 14px;
+}
+
+.chart-card__dept-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.chart-card__dept-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chart-card__dept-count {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+}

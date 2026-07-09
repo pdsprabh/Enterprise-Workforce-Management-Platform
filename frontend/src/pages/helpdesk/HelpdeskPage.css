@@ -1,0 +1,79 @@
+.helpdesk-page {
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.helpdesk-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.helpdesk-page__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Summary row */
+.helpdesk-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .helpdesk-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.helpdesk-summary__card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  text-align: center;
+}
+
+.helpdesk-summary__label {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 4px;
+}
+
+.helpdesk-summary__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.helpdesk-summary__value--open        { color: #F59E0B; }
+.helpdesk-summary__value--in_progress { color: #4F46E5; }
+.helpdesk-summary__value--resolved    { color: #10B981; }
+.helpdesk-summary__value--closed      { color: #6B7280; }
+
+/* Filters */
+.helpdesk-page__filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Ticket list */
+.helpdesk-tickets {
+  /* tickets stacked vertically via TicketCard margin-bottom */
+}
+
+.helpdesk-empty {
+  text-align: center;
+  padding: 48px;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}

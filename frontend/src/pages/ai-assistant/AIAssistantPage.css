@@ -1,0 +1,88 @@
+.ai-page {
+  padding: 0;
+  margin: 0 auto;
+  height: calc(100vh - 64px); /* full height minus topbar */
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.ai-page__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-page__subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Messages area */
+.ai-page__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scroll-behavior: smooth;
+}
+
+/* Suggested prompts */
+.ai-page__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 24px 16px;
+  flex-shrink: 0;
+}
+
+.ai-suggestion-chip {
+  padding: 7px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--color-primary);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ai-suggestion-chip:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* Typing indicator row */
+.ai-page__typing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px 8px;
+  flex-shrink: 0;
+}
+
+.ai-page__typing-avatar {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Input area */
+.ai-page__input-area {
+  flex-shrink: 0;
+  border-top: 1px solid var(--color-border);
+}

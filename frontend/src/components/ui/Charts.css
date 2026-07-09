@@ -1,0 +1,164 @@
+/* ── Shared Chart Styles ───────────────────────────────────── */
+.chart-container {
+  width: 100%;
+}
+
+.chart-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+}
+
+/* ── Line Chart ─────────────────────────────────────────── */
+.line-chart {
+  width: 100%;
+}
+
+.line-chart__svg {
+  width: 100%;
+  overflow: visible;
+}
+
+.line-chart__line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.line-chart__area {
+  opacity: 0.1;
+}
+
+.line-chart__point {
+  cursor: pointer;
+  transition: r 0.15s;
+}
+
+.line-chart__point:hover {
+  r: 6;
+}
+
+.line-chart__x-label {
+  font-size: 0.7rem;
+  fill: var(--color-text-secondary, #6B7280);
+  text-anchor: middle;
+}
+
+.line-chart__y-label {
+  font-size: 0.7rem;
+  fill: var(--color-text-secondary, #6B7280);
+  text-anchor: end;
+}
+
+.line-chart__tooltip {
+  pointer-events: none;
+}
+
+.line-chart__gridline {
+  stroke: var(--color-border, #E5E7EB);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+/* ── Bar Chart ──────────────────────────────────────────── */
+.bar-chart {
+  width: 100%;
+}
+
+.bar-chart__svg {
+  width: 100%;
+  overflow: visible;
+}
+
+.bar-chart__bar {
+  transition: opacity 0.15s;
+  cursor: default;
+}
+
+.bar-chart__bar:hover {
+  opacity: 0.8;
+}
+
+.bar-chart__value-label {
+  font-size: 0.65rem;
+  fill: var(--color-text-secondary, #6B7280);
+  text-anchor: middle;
+}
+
+.bar-chart__x-label {
+  font-size: 0.7rem;
+  fill: var(--color-text-secondary, #6B7280);
+  text-anchor: middle;
+}
+
+.bar-chart__gridline {
+  stroke: var(--color-border, #E5E7EB);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+/* ── Donut Chart ────────────────────────────────────────── */
+.donut-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.donut-chart__ring-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-chart__ring {
+  border-radius: 50%;
+  display: block;
+}
+
+.donut-chart__center-label {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-chart__center-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: block;
+  line-height: 1.2;
+}
+
+.donut-chart__center-sub {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  display: block;
+}
+
+.donut-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+.donut-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.donut-chart__legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}

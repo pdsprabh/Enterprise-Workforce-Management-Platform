@@ -1,0 +1,277 @@
+/* ── Super Admin Documents Page ─────────────────────────── */
+.sa-docs {
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.sa-docs__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.sa-docs__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+}
+
+.sa-docs__subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ── Stats ───────────────────────────────────────────────── */
+.sa-docs__stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.sa-docs__stat-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+}
+
+.sa-docs__stat-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.sa-docs__stat-label {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+}
+
+/* ── Filters ─────────────────────────────────────────────── */
+.sa-docs__filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sa-docs__filter-select {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.sa-docs__filter-select:focus {
+  border-color: var(--color-primary);
+}
+
+/* ── Table card ──────────────────────────────────────────── */
+.sa-docs__card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: auto;
+}
+
+.sa-docs__empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.sa-docs__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.sa-docs__table thead tr {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.sa-docs__table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sa-docs__table td {
+  padding: 12px 14px;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.sa-docs__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sa-docs__table tbody tr:hover td {
+  background: var(--color-bg-secondary);
+}
+
+/* ── Document name cell ──────────────────────────────────── */
+.sa-docs__doc-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+}
+
+.sa-docs__doc-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.sa-docs__doc-name span:last-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sa-docs__platform {
+  color: var(--color-text-secondary);
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+/* ── Role chips ──────────────────────────────────────────── */
+.sa-docs__all-roles {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.sa-docs__role-chip {
+  display: inline-block;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin: 2px 2px 2px 0;
+  white-space: nowrap;
+}
+
+/* ── Row actions ─────────────────────────────────────────── */
+.sa-docs__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.sa-docs__action-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.sa-docs__action-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.sa-docs__action-btn--delete:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* ── Upload/Edit form ────────────────────────────────────── */
+.doc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.doc-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.doc-form__field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.doc-form__field input[type="text"],
+.doc-form__field select {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.doc-form__field input[type="text"]:focus,
+.doc-form__field select:focus {
+  border-color: var(--color-primary);
+}
+
+.doc-form__field input[type="file"] {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.doc-form__roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.doc-form__role-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--color-text-primary);
+}
+
+.doc-form__role-check input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--color-primary);
+  width: 16px;
+  height: 16px;
+}
