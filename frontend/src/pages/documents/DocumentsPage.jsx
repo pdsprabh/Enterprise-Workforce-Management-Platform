@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext, useCallback } from 'react';
 import TabNav from '../../components/ui/TabNav';
 import Button from '../../components/ui/Button';
 import SearchBar from '../../components/ui/SearchBar';
 import DocumentRow from '../../components/documents/DocumentRow';
+import DocumentFormModal from '../../components/documents/DocumentFormModal';
+import { AuthContext } from '../../context/AuthContext';
 const DOCUMENT_TYPES = {
   OFFER_LETTER: 'Offer Letter',
   CONTRACT: 'Contract',
@@ -28,15 +30,18 @@ const FILTER_TABS = [
 ];
 
 export default function DocumentsPage() {
+  const { user } = useContext(AuthContext);
   const { addToast } = useToast();
   const [documents, setDocuments] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  
+  const [showUpload, setShowUpload] = useState(false);
 
-  useEffect(() => {
-    async function fetchDocuments() {
-      try {
+  const fetchDocuments = useCallback(async () => {
+    setLoading(true);
+    try {
         const res = await api.get('/documents/me');
         const data = res.data.data || [];
         const mappedDocs = data.map(d => ({
@@ -53,12 +58,14 @@ export default function DocumentsPage() {
       } catch (err) {
         console.error(err);
         addToast({ type: 'error', message: 'Failed to load documents.' });
-      } finally {
-        setLoading(false);
-      }
+    } finally {
+      setLoading(false);
     }
-    fetchDocuments();
   }, [addToast]);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
 
   const filtered = useMemo(() => {
     return documents
@@ -92,15 +99,20 @@ export default function DocumentsPage() {
     }
   }
 
-  function handleUpload() {
-    addToast({ type: 'info', message: 'Upload feature coming soon!' });
+  function handleModalSaved() {
+    setShowUpload(false);
+    fetchDocuments();
   }
+
+  const canUpload = ['Super Admin', 'Organization Admin', 'HR Manager'].includes(user?.role);
 
   return (
     <div className="documents-page">
       <div className="documents-page__header">
         <h1 className="documents-page__title">Documents</h1>
-        <Button onClick={handleUpload}>↑ Upload Document</Button>
+        {canUpload && (
+          <Button onClick={() => setShowUpload(true)}>↑ Upload Document</Button>
+        )}
       </div>
 
       <TabNav tabs={FILTER_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
@@ -127,6 +139,13 @@ export default function DocumentsPage() {
           ))
         )}
       </div>
+
+      <DocumentFormModal
+        isOpen={showUpload}
+        onClose={() => setShowUpload(false)}
+        onSaved={handleModalSaved}
+        isAdmin={false} // Employees/HR don't select org, it's inferred on backend
+      />
     </div>
   );
 }

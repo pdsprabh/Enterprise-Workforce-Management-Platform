@@ -21,6 +21,14 @@ export async function loginWithMicrosoft(token) {
   return data;
 }
 
+export async function loginWithLinkedIn(code) {
+  const { data } = await axiosInstance.post('/auth/linkedin', { 
+    code,
+    redirectUri: window.location.origin + '/linkedin'
+  });
+  return data;
+}
+
 /**
  * Register a new user.
  * @param {{ name: string, email: string, password: string, role?: string }} userData

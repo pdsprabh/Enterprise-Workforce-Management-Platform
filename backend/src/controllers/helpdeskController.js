@@ -1,4 +1,5 @@
 const HelpDeskTicket = require('../models/HelpDeskTicket');
+const { createAndSendNotification } = require('./notificationController');
 
 exports.createTicket = async (req, res) => {
     try {
@@ -50,11 +51,22 @@ exports.updateTicketStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Ticket not found' });
         }
 
-        // Additional RBAC: HR Manager should ideally only close HR tickets, IT for IT etc.
-        // For now, if they reached here, they are authorized.
-        
         ticket.status = status;
         await ticket.save();
+
+        // Notify the ticket raiser
+        const Employee = require('../models/Employee');
+        const raisedByEmployee = await Employee.findOne({ user: ticket.raisedBy });
+        
+        if (raisedByEmployee) {
+            await createAndSendNotification({
+                recipient: raisedByEmployee._id,
+                title: 'Ticket Status Updated',
+                message: `Your IT Support ticket "${ticket.title}" status is now: ${status}`,
+                type: 'ticket-status',
+                relatedId: ticket._id
+            });
+        }
 
         res.status(200).json({ success: true, data: ticket });
     } catch (err) {

@@ -9,14 +9,15 @@ const UserSchema = new mongoose.Schema({
     mobile: { type: String },
     googleId: { type: String, unique: true, sparse: true },
     microsoftId: { type: String, unique: true, sparse: true },
+    linkedinId: { type: String, unique: true, sparse: true },
     failedLoginAttempts: { type: Number, default: 0 },
     isLocked: { type: Boolean, default: false },
     refreshToken: { type: String }
 }, { timestamps: true });
 
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function() {
     if (!this.isModified('password') || !this.password) {
-        next();
+        return;
     }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

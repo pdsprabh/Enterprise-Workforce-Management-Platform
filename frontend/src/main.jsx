@@ -13,7 +13,7 @@ const msalConfig = {
   }
 };
 const msalInstance = new PublicClientApplication(msalConfig);
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "placeholder_google_client_id";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "185504117268-kgmst7cqmvm6tpmei5o0knq0hg2d5j43.apps.googleusercontent.com";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

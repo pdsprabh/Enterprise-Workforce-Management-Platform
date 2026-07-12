@@ -59,10 +59,12 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 if (require.main === module) {
-    const server = http.createServer(app);
-    initSocket(server);
-    server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+    connectDB().then(() => {
+        const server = http.createServer(app);
+        initSocket(server);
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
     });
 }
 

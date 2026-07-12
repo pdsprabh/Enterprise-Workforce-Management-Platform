@@ -23,9 +23,13 @@ const CandidateSchema = new mongoose.Schema({
         type: String
     },
     aiAnalysis: {
-        summary: String,
-        matchScore: Number,
-        skills: [String]
+        detailedOverview: String,
+        overallScore: Number,
+        adaScore: Number,
+        strengths: [String],
+        weaknesses: [String],
+        languages: [String],
+        relevantTechnologies: [String]
     },
     status: {
         type: String,

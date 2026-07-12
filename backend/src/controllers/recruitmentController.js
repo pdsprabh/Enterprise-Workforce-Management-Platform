@@ -2,6 +2,8 @@ const Candidate = require('../models/Candidate');
 const JobPosting = require('../models/JobPosting');
 const cloudinary = require('../config/cloudinary');
 const aiAssistant = require('../ai/aiAssistant');
+const Employee = require('../models/Employee');
+const { createAndSendNotification } = require('./notificationController');
 
 // @desc    Create candidate application (basic info)
 // @route   POST /api/recruitment/candidates
@@ -35,7 +37,12 @@ exports.uploadResume = async (req, res) => {
             // upload buffer to cloudinary
             const uploadResult = await new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
-                    { resource_type: 'raw', folder: 'resumes' },
+                    { 
+                        resource_type: 'auto', 
+                        folder: 'resumes',
+                        use_filename: true,
+                        unique_filename: true
+                    },
                     (error, result) => {
                         if (error) reject(error);
                         else resolve(result);
@@ -71,11 +78,11 @@ exports.analyzeResume = async (req, res) => {
 
         // placeholder call to AI assistant — actual text-extraction/AI logic to be refined
         try {
-            const analysis = await aiAssistant.analyzeResume(candidate.resumeText || '');
+            const analysis = await aiAssistant.analyzeResume(candidate.resumeText || '', candidate.positionAppliedFor);
             candidate.aiAnalysis = analysis;
         } catch (aiErr) {
-            // AI assistant not fully implemented yet — store a stub so flow doesn't break
-            candidate.aiAnalysis = { summary: 'AI analysis pending implementation', matchScore: null, skills: [] };
+            // Fallback if AI fails
+            candidate.aiAnalysis = { detailedOverview: 'AI analysis failed', overallScore: 0, strengths: [], weaknesses: [] };
         }
 
         await candidate.save();
@@ -125,6 +132,19 @@ exports.scheduleInterview = async (req, res) => {
         candidate.status = 'interview-scheduled';
 
         await candidate.save();
+
+        // Check if candidate is an internal employee to send a notification
+        const employee = await Employee.findOne({ email: candidate.email });
+        if (employee) {
+            await createAndSendNotification({
+                recipient: employee._id,
+                title: 'Interview Scheduled',
+                message: `Your interview for ${candidate.positionAppliedFor} has been scheduled for ${new Date(scheduledAt).toLocaleString()}.`,
+                type: 'application-status',
+                relatedId: candidate._id
+            });
+        }
+
         res.status(200).json({ success: true, data: candidate });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -144,6 +164,18 @@ exports.updateCandidateStatus = async (req, res) => {
         const candidate = await Candidate.findByIdAndUpdate(req.params.id, { status }, { new: true });
         if (!candidate) {
             return res.status(404).json({ success: false, message: 'Candidate not found' });
+        }
+
+        // Check if candidate is an internal employee to send a notification
+        const employee = await Employee.findOne({ email: candidate.email });
+        if (employee) {
+            await createAndSendNotification({
+                recipient: employee._id,
+                title: 'Application Status Updated',
+                message: `Your application for ${candidate.positionAppliedFor} has been updated to: ${status}.`,
+                type: 'application-status',
+                relatedId: candidate._id
+            });
         }
 
         res.status(200).json({ success: true, data: candidate });

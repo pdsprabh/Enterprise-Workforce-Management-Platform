@@ -1,11 +1,12 @@
 const Attendance = require('../models/Attendance');
 const Employee = require('../models/Employee');
+const User = require('../models/User');
+const { createAndSendNotification } = require('./notificationController');
 
 // Helper: get the logged-in employee from req.user
 const getEmployeeFromUser = async (userId) => {
     let employee = await Employee.findOne({ user: userId });
     if (!employee) {
-        const User = require('../models/User');
         const user = await User.findById(userId);
         if (user) {
             employee = await Employee.create({
@@ -19,6 +20,27 @@ const getEmployeeFromUser = async (userId) => {
         }
     }
     return employee;
+};
+
+// Helper: Notify HR Managers
+const notifyHRManagers = async (title, message, relatedId) => {
+    try {
+        const hrUsers = await User.find({ role: 'HR Manager' });
+        for (const hr of hrUsers) {
+            const hrEmployee = await Employee.findOne({ user: hr._id });
+            if (hrEmployee) {
+                await createAndSendNotification({
+                    recipient: hrEmployee._id,
+                    title,
+                    message,
+                    type: 'attendance-update',
+                    relatedId
+                });
+            }
+        }
+    } catch (err) {
+        console.error('Failed to notify HR managers', err);
+    }
 };
 
 // @desc    Clock in for today
@@ -51,6 +73,23 @@ exports.clockIn = async (req, res) => {
         }
 
         await attendance.save();
+
+        // Notify employee
+        await createAndSendNotification({
+            recipient: employee._id,
+            title: 'Attendance Recorded',
+            message: `You successfully clocked in at ${attendance.clockIn.toLocaleTimeString()}.`,
+            type: 'attendance-update',
+            relatedId: attendance._id
+        });
+
+        // Notify HR Managers
+        await notifyHRManagers(
+            'Employee Clocked In',
+            `${employee.name} clocked in at ${attendance.clockIn.toLocaleTimeString()}.`,
+            attendance._id
+        );
+
         res.status(200).json({ success: true, data: attendance });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -84,6 +123,23 @@ exports.clockOut = async (req, res) => {
         attendance.workHours = Math.round(hours * 100) / 100;
 
         await attendance.save();
+
+        // Notify employee
+        await createAndSendNotification({
+            recipient: employee._id,
+            title: 'Attendance Recorded',
+            message: `You successfully clocked out at ${attendance.clockOut.toLocaleTimeString()}. Total hours: ${attendance.workHours}`,
+            type: 'attendance-update',
+            relatedId: attendance._id
+        });
+
+        // Notify HR Managers
+        await notifyHRManagers(
+            'Employee Clocked Out',
+            `${employee.name} clocked out at ${attendance.clockOut.toLocaleTimeString()}. Total hours: ${attendance.workHours}`,
+            attendance._id
+        );
+
         res.status(200).json({ success: true, data: attendance });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
