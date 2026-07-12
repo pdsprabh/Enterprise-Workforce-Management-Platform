@@ -46,7 +46,7 @@ exports.uploadResume = async (req, res) => {
             candidate.resumeUrl = uploadResult.secure_url;
         } else {
             // Fallback for local development when keys are not set
-            candidate.resumeUrl = `http://localhost:5000/mock-resumes/${req.file.originalname}`;
+            candidate.resumeUrl = `https://enterpriseworkforcemanagementplatform-0kdu.onrender.com/mock-resumes/${req.file.originalname}`;
         }
 
         await candidate.save();
