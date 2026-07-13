@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - dev
+  workflow_dispatch:
 
 jobs:
   build-and-lint:
@@ -31,7 +32,7 @@ jobs:
         
       - name: Install Frontend Dependencies
         working-directory: ./frontend
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
         
       - name: Lint Frontend
         working-directory: ./frontend
